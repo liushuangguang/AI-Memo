@@ -1,0 +1,144 @@
+jwt:
+  key: ${JWT_KEY:}
+
+spring:
+  r2dbc:
+    username: ${R2DBC_USERNAME:}
+    password: ${R2DBC_PASSWORD:}
+    url: ${R2DBC_URL:}
+    name: ${R2DBC_DATABASE:note}
+  webflux:
+    multipart:
+      # 指定每个文件部分在磁盘上允许使用的最大空间。
+      max-disk-usage-per-part: 5MB
+      # 定义了在内存中存储的最大数据量。超过这个大小的数据将被写入到磁盘。
+      max-in-memory-size: 10MB
+      # 限制请求中允许的最大部分数。如果请求的部分数超过这个值，将会被拒绝。默认为 -1，表示不限制。
+      max-parts: 10
+      # 指定 HTTP 请求头的最大大小。用于限制请求头部的内存使用。
+      max-headers-size: 1MB
+      # 指定文件存储的目录。当文件需要被写入磁盘时，文件将会被保存到这个目录中。
+      # file-storage-directory: /images
+  profiles:
+    active: local
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:}
+      database: ${MONGODB_DATABASE:note}
+      # 启用索引自动创建
+      auto-index-creation: true
+#  data:
+#    redis:
+#      client-name: note-redis
+#      host: localhost
+#      port: 6379
+#      database: 0
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: -1ms
+
+
+#logging:
+#  level:
+#    root: DEBUG
+#    org.springframework.web: INFO
+#    org.springframework.data.r2dbc: DEBUG
+
+
+server:
+  port: 8080  # HTTPS 默认端口号
+#  ssl:
+#    key-store: classpath:localhost.p12
+#    key-store-type: PKCS12
+#    key-store-password: noteai
+#    key-password: noteai
+
+
+logging:
+  config: classpath:log4j2.xml
+
+# Non-local deployments must provide MILVUS_HOST (or milvus.host).
+# local-dev overrides this with its loopback endpoint.
+milvus:
+  # Embedding side effects are opt-in so note saves remain safe without Milvus.
+  enabled: ${MILVUS_ENABLED:false}
+  host: ${MILVUS_HOST:}
+  port: ${MILVUS_PORT:19530}
+
+# AI provider credentials are backend-only environment/config values. Never
+# place them in the Flutter app or commit real values to this file.
+dify:
+  base-url: ${DIFY_BASE_URL:https://api.dify.ai}
+  timeout-seconds: ${DIFY_TIMEOUT_SECONDS:90}
+
+coze:
+  api-key: ${COZE_API_KEY:}
+  workflow-url: ${COZE_WORKFLOW_URL:https://api.coze.cn/v1/workflow/run}
+  timeout-seconds: ${COZE_TIMEOUT_SECONDS:30}
+
+deepseek:
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+  api-key: ${DEEPSEEK_API_KEY:}
+  model: ${DEEPSEEK_MODEL:deepseek-chat}
+  timeout-seconds: ${DEEPSEEK_TIMEOUT_SECONDS:90}
+
+# Optional independent OpenAI-compatible provider. Credentials remain backend-only.
+# Do not point this at TabToTask's task-specific public API or reuse client licenses.
+ai:
+  chat:
+    base-url: ${AI_CHAT_BASE_URL:${DEEPSEEK_BASE_URL:https://api.deepseek.com}}
+    api-key: ${AI_CHAT_API_KEY:${DEEPSEEK_API_KEY:}}
+    model: ${AI_CHAT_MODEL:${DEEPSEEK_MODEL:deepseek-chat}}
+    direct: ${AI_CHAT_DIRECT:false}
+
+siliconflow:
+  base-url: ${SILICONFLOW_BASE_URL:https://api.siliconflow.cn/v1/embeddings}
+  api-key: ${SILICONFLOW_API_KEY:}
+  model: ${SILICONFLOW_MODEL:BAAI/bge-large-zh-v1.5}
+
+bailian:
+  api-key: ${BAILIAN_API_KEY:}
+
+aliyun:
+  sms:
+    access-key-id: ${ALIYUN_SMS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_SMS_ACCESS_KEY_SECRET:}
+
+pdd:
+  base-url: ${PDD_BASE_URL:https://gw-api.pinduoduo.com/api/router}
+  client-id: ${PDD_CLIENT_ID:}
+  pid: ${PDD_PID:}
+  secret-key: ${PDD_SECRET_KEY:}
+
+speech:
+  app_id: ${IFLYTEK_APP_ID:}
+  api_secret: ${IFLYTEK_API_SECRET:}
+  api_key: ${IFLYTEK_API_KEY:}
+  host_url: ${IFLYTEK_IAT_URL:https://iat-api.xfyun.cn/v2/iat}
+  tts_url: ${IFLYTEK_TTS_URL:https://tts-api.xfyun.cn/v2/tts}
+
+workflow_id:
+  note:
+    is_make_sense: ${DIFY_WORKFLOW_NOTE_IS_MAKE_SENSE:}
+    organize: ${DIFY_WORKFLOW_NOTE_ORGANIZE:${DIFY_NOTE_ORGANIZE_API_KEY:}}
+    related_title: ${DIFY_WORKFLOW_NOTE_RELATED_TITLE:${DIFY_NOTE_RELATED_TITLE_API_KEY:}}
+    ai_suggestion: ${DIFY_WORKFLOW_NOTE_AI_SUGGESTION:${DIFY_NOTE_AI_SUGGESTION_API_KEY:}}
+    guess_your_like: ${DIFY_WORKFLOW_NOTE_RELATED_INFO:}
+    info_classification: ${DIFY_WORKFLOW_NOTE_INFO_CLASSIFICATION:}
+    rewrite_content: ${DIFY_WORKFLOW_NOTE_REWRITE_CONTENT:}
+    content_assistance: ${DIFY_WORKFLOW_NOTE_CONTENT_ASSISTANCE:}
+    complete_info: ${DIFY_WORKFLOW_NOTE_COMPLETE_INFO:}
+  recommend_product:
+    search_keywords: ${DIFY_WORKFLOW_SEARCH_KEYWORDS:}
+  search:
+    related_link: ${COZE_WORKFLOW_RELATED_LINK:${COZE_SEARCH_WORKFLOW_ID:7431908464874799113}}
+  image:
+    gen: ${COZE_WORKFLOW_IMAGE:${COZE_IMAGE_WORKFLOW_ID:7379868069084069924}}
+
+web-search:
+  bing-rss-url: ${BING_RSS_URL:https://www.bing.com/search}
+  timeout-seconds: ${WEB_SEARCH_TIMEOUT_SECONDS:8}
+  max-results: ${WEB_SEARCH_MAX_RESULTS:8}

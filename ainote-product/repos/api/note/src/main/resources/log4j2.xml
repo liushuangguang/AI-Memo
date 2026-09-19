@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status="WARN" 是对 Log4j2 框架内部日志的设置。 level="info"
+是对你应用程序日志的设置。-->
+<!-- https://logging.apache.org/log4j/2.x/ -->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n" /> -->
+            <PatternLayout
+                charset="UTF-8"
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %highlight{%-5level}{
+                ERROR=RED,
+                WARN=Yellow,
+                INFO=Green,
+                DEBUG=Cyan,
+                TRACE=White
+            } %style{[%t]}{Magenta} %style{%c{1.}.%M(%L)}{Cyan}: %msg%n" />
+        </Console>
+        <!-- 对于测试环境，日志会存放在 /root/logs 目录下，日志文件名为 app.log。-->
+        <RollingFile name="RollingFileAppender" fileName="logs/app.log"
+            filePattern="logs/note-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout
+                charset="UTF-8"
+                pattern="%d{yyyy-MM-dd HH:mm:ss} %-5level [%t] %logger{36}: %msg%n" />
+
+            <Policies>
+                <!-- 每天滚动一次 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <!-- 当文件大小超过 50MB 时滚动 -->
+                <SizeBasedTriggeringPolicy size="50 MB" />
+            </Policies>
+
+            <!-- 保留最多 10 个备份文件，超过这个数量的旧日志文件会被删除。 -->
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!--<Logger
+        name="io.r2dbc" level="debug" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Logger>-->
+        <Root level="INFO">
+            <AppenderRef ref="RollingFileAppender" />
+            <AppenderRef ref="ConsoleAppender" />
+        </Root>
+    </Loggers>
+</Configuration>

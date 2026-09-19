@@ -1,0 +1,82 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
+
+import 'audio_recorder.dart';
+
+class RecordButton extends StatefulWidget {
+  @override
+  _RecordButtonState createState() => _RecordButtonState();
+}
+
+class _RecordButtonState extends State<RecordButton> {
+  AudioRecorder? _record;
+  Timer? _timer;
+  File? _audioFile;
+  bool _isRecording = false;
+  int _seconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _record = AudioRecorder();
+  }
+
+  Future<void> _startRecording(int durationInSeconds) async {
+    try {
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/audio.pcm';
+
+      await _record!.start(
+        path: filePath,
+        encoder: AudioEncoder.pcm16,
+      );
+
+      _audioFile = File(filePath);
+      _isRecording = true;
+
+      _seconds = 0;
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+        if (_seconds >= durationInSeconds) {
+          _timer?.cancel();
+          _stopRecording();
+        } else {
+          setState(() {
+            _seconds++;
+          });
+        }
+      });
+    } catch (e) {
+      print('Error starting recording: $e');
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    try {
+      await _record!.stop();
+      setState(() {
+        _isRecording = false;
+        _seconds = 0;
+      });
+    } catch (e) {
+      print('Error stopping recording: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        if (!_isRecording) {
+          _startRecording(10); // 设置录音时长为 10 秒
+        } else {
+          _stopRecording();
+        }
+      },
+      child: Text(_isRecording ? 'Stop Recording' : 'Start Recording'),
+    );
+  }
+}

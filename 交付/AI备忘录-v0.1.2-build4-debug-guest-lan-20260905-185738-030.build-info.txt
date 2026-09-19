@@ -1,0 +1,33 @@
+AI备忘录 Android 调试包构建信息
+
+构建命令:
+C:\flutter\bin\flutter.bat build apk --debug --no-pub --dart-define=GUEST_MODE=true --dart-define=API_BASE_URL=http://192.168.31.213:8080
+
+交付 APK:
+C:\Users\Administrator\Documents\ChatGPT\AI备忘录\交付\AI备忘录-v0.1.2-build4-debug-guest-lan-20260905-185738-030.apk
+
+包名: aifunc.top.ainote_app.debug
+应用版本: 0.1.2
+版本代码: 4
+应用名称: AI备忘录
+入口 Activity: aifunc.top.ainote_app.MainActivity
+minSdk: 24
+targetSdk: 36
+ABI: arm64-v8a, armeabi-v7a, x86_64
+文件大小: 170841286 bytes (162.93 MiB)
+SHA-256: D0E29BB8AD0E0FFCBF9E06D04DE68061CA0617FFF1934E7D5BD9497729B1CBB5
+
+完整性检查:
+- 源构建包与交付包 SHA-256 一致
+- APK Signature Scheme v2 验证通过
+- ZIP alignment 验证通过
+- 本地后端健康检查 HTTP 200，状态 UP
+
+运行验证限制:
+- ADB 当前没有连接 Android 设备
+- 本机没有安装 Android Emulator
+- 因此本轮未产生实机启动、白屏/黑屏或运行日志证据
+
+构建说明:
+- Flutter 3.38.5 / Dart 3.10.4 / Android SDK 36.0.0
+- 原工程中文路径会触发 impellerc 无法写入 shader；通过指向同一工作树的纯英文目录联接构建成功，未修改业务源码。

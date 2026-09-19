@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI备忘录系统架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [920, 400]
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [30, 40],
+    "cols": 4,
+    "gapX": 70,
+    "gapY": 45,
+    "cellW": 150,
+    "cellH": 70
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "用户",
+      "sublabel": "快速记录与查看结果",
+      "row": 0,
+      "col": 0
+    },
+    {
+      "id": "flutterApp",
+      "type": "frontend",
+      "label": "Flutter 客户端",
+      "sublabel": "文本、图片、语音与待办",
+      "tag": "ainote_app",
+      "row": 0,
+      "col": 1
+    },
+    {
+      "id": "springApi",
+      "type": "backend",
+      "label": "Spring WebFlux API",
+      "sublabel": "认证、笔记、待办与文件接口",
+      "tag": "Java 21",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "aiOrchestrator",
+      "type": "backend",
+      "label": "AI 整理与辅助服务",
+      "sublabel": "整理、建议、关联、分类与配图",
+      "tag": "Reactive / SSE",
+      "row": 0,
+      "col": 3
+    },
+    {
+      "id": "aiProviders",
+      "type": "external",
+      "label": "AI 工作流与模型平台",
+      "sublabel": "Dify、Coze、百炼",
+      "row": 1,
+      "col": 3
+    },
+    {
+      "id": "deviceStorage",
+      "type": "database",
+      "label": "设备本地存储",
+      "sublabel": "令牌、设备 ID 与请求缓存",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "businessStores",
+      "type": "database",
+      "label": "业务数据层",
+      "sublabel": "MySQL、MongoDB、Redis",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "vectorService",
+      "type": "backend",
+      "label": "独立向量检索服务",
+      "sublabel": "FastAPI + Milvus + SiliconFlow",
+      "tag": "port 6000",
+      "row": 2,
+      "col": 3
+    },
+    {
+      "id": "supportProviders",
+      "type": "external",
+      "label": "语音与短信服务",
+      "sublabel": "讯飞、阿里云短信",
+      "row": 2,
+      "col": 1
+    }
+  ],
+  "connections": [
+    {
+      "id": "userCapture",
+      "from": "user",
+      "to": "flutterApp",
+      "label": "记录与查看",
+      "variant": "emphasis",
+      "labelAt": [200, 28]
+    },
+    {
+      "id": "appApi",
+      "from": "flutterApp",
+      "to": "springApi",
+      "label": "HTTPS REST / SSE",
+      "variant": "emphasis",
+      "labelAt": [420, 28]
+    },
+    {
+      "id": "apiAi",
+      "from": "springApi",
+      "to": "aiOrchestrator",
+      "label": "智能整理与内容辅助",
+      "variant": "emphasis",
+      "labelAt": [640, 28]
+    },
+    {
+      "id": "aiWorkflow",
+      "from": "aiOrchestrator",
+      "to": "aiProviders",
+      "label": "工作流与模型调用",
+      "variant": "emphasis",
+      "labelAt": [800, 125]
+    },
+    {
+      "id": "appLocal",
+      "from": "flutterApp",
+      "to": "deviceStorage",
+      "label": "本地保存",
+      "labelAt": [210, 125]
+    },
+    {
+      "id": "apiData",
+      "from": "springApi",
+      "to": "businessStores",
+      "label": "响应式读写",
+      "labelAt": [530, 125]
+    },
+    {
+      "id": "apiSupport",
+      "from": "springApi",
+      "to": "supportProviders",
+      "label": "语音识别、合成与验证码",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [[420, 70], [420, 300]],
+      "labelAt": [420, 245]
+    },
+    {
+      "id": "vectorWorkflow",
+      "from": "vectorService",
+      "to": "aiProviders",
+      "label": "Coze 主题工作流",
+      "labelAt": [800, 245]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "核心运行链路",
+      "items": [
+        "用户在 Flutter 客户端记录内容，客户端通过 HTTPS 调用统一 API。",
+        "后端保存业务数据，并按需返回 SSE 流式 AI 建议与整理结果。"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "数据职责",
+      "items": [
+        "MySQL 与 MongoDB 承载业务数据；Redis 负责缓存、验证码和延迟分析触发。",
+        "独立 FastAPI 服务连接 Milvus，并通过 SiliconFlow 生成向量。"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "源码证据边界",
+      "items": [
+        "AI 平台能力依赖环境变量配置；缺少配置时对应能力会失败并提示缺项。",
+        "未在 Spring 后端中定位到对 FastAPI 向量服务的运行时调用；Hunyuan-custom 当前也没有接入主链路的代码证据。"
+      ]
+    }
+  ]
+}

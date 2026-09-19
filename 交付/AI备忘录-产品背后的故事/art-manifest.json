@@ -1,0 +1,44 @@
+{
+  "createdOn": "2026-09-06",
+  "source": "Built-in Codex image generation",
+  "purpose": "Editorial narrative illustrations; not product UI or user data",
+  "aspectRatio": "3:2",
+  "files": [
+    {
+      "file": "public/art/scattered.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2252521,
+      "sha256": "33315bf695a15e9ab2df99e574ca66ac54c77815a167d70e7dc29de3cdb139de",
+      "nativeResolution": true,
+      "postProcessed": false
+    },
+    {
+      "file": "public/art/context.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2143409,
+      "sha256": "e404a4fd9bf035294382d3eff41e4b8e5421f33e50393128952ba36b433e14d5",
+      "nativeResolution": true,
+      "postProcessed": false
+    },
+    {
+      "file": "public/art/connections.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2358378,
+      "sha256": "c5e9f1b00252315c84fac6c5fd0a0164dc43c3f12b5934743785bf6908c4c797",
+      "nativeResolution": true,
+      "postProcessed": false
+    },
+    {
+      "file": "public/art/care.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1947900,
+      "sha256": "07f64cda8b68e77e646916872899e66ba7d5d26211c5295068ca7ffa140f21f7",
+      "nativeResolution": true,
+      "postProcessed": false
+    }
+  ]
+}

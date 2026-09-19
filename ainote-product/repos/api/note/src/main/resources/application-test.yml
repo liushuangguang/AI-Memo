@@ -1,0 +1,27 @@
+note:
+  hostName: https://aifunc.top/
+
+milvus:
+  enabled: false
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:}
+      database: note
+      # 启用索引自动创建
+      auto-index-creation: true
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    #url: Swagger UI 会尝试从 https://aifunc.top/v1/note-docs 获取 API 文档
+    url: https://aifunc.top/v1/note-docs
+    #path: Swagger UI 的访问路径是 /v1/note/swagger-ui.html
+    path: /v1/note/swagger-ui.html
+  api-docs:
+    path: /v1/note-docs
+
+swagger:
+  servers:
+    url: "https://aifunc.top/"

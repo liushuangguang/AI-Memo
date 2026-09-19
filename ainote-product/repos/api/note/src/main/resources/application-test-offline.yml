@@ -1,0 +1,40 @@
+note:
+  hostName: http://127.0.0.1:8080/
+  mongodb:
+    indexes:
+      enabled: false
+
+spring:
+  r2dbc:
+    username: root
+    password: ""
+    url: r2dbc:mysql://127.0.0.1:3306/note
+    name: note
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27017/note
+      database: note
+      auto-index-creation: false
+    redis:
+      host: 127.0.0.1
+      port: 6379
+
+milvus:
+  enabled: false
+  host: 127.0.0.1
+  port: 19530
+
+management:
+  health:
+    mongo:
+      enabled: false
+    redis:
+      enabled: false
+    db:
+      enabled: false
+    r2dbc:
+      enabled: false
+
+swagger:
+  servers:
+    url: http://127.0.0.1:8080/

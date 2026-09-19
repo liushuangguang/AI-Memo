@@ -1,0 +1,3 @@
+# Build Rust plugins with this app's Android NDK instead of consuming older
+# precompiled binaries that are not compatible with 16 KB page-size devices.
+use_precompiled_binaries: false

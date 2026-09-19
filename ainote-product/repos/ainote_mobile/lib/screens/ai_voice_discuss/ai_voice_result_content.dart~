@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+
+import '../../constants/app_images.dart';
+import '../../ui/retry_btn.dart';
+import '../widgets/ai_result_item.dart';
+
+class AiVoiceResultContent extends StatelessWidget {
+  bool? loading;
+  final String content;
+  final VoidCallback onTap;
+  Function(String content)? onSave;
+  AiVoiceResultContent({super.key, required this.onTap, this.onSave, required this.content, this.loading = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ResultItem(
+            loading: loading,
+            title: 'AI总结',
+            titleColor: const Color(0xFF624E00),
+            backgroundColor: const Color(0xFFFFFDF4),
+            header: Row(children: [
+              ResultItemHeader(
+                title: 'AI总结',
+                iconPath: AppImages.blackCheckedIcon.path,
+              ),
+              const Spacer(),
+              Visibility(
+                visible: onSave != null,
+                child: ResultItemAction(
+                  actionText: '存入正文',
+                  afterActionText: '存入成功',
+                  onSave: () {
+                    onSave?.call(content);
+                  },
+                ),
+              ),
+            ]),
+            text: content,
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          RetryBtn(onTap: onTap),
+        ],
+      ),
+    );
+  }
+}

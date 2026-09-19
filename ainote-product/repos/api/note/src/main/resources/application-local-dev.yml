@@ -1,0 +1,68 @@
+note:
+  hostName: http://127.0.0.1:8080/
+  mongodb:
+    indexes:
+      enabled: false
+
+app:
+  guest:
+    enabled: true
+  local-dev:
+    mongodb:
+      host: 127.0.0.1
+      port: 27018
+
+spring:
+  r2dbc:
+    username: root
+    password: ""
+    url: r2dbc:mysql://127.0.0.1:3306/note
+    name: note
+  data:
+    mongodb:
+      uri: mongodb://127.0.0.1:27018/note
+      database: note
+      auto-index-creation: false
+    redis:
+      host: 127.0.0.1
+      port: 6379
+
+server:
+  port: 8080
+
+milvus:
+  enabled: false
+  host: 127.0.0.1
+  port: 19530
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    url: http://127.0.0.1:8080/v1/note-docs
+    path: /v1/note/swagger-ui.html
+  api-docs:
+    path: /v1/note-docs
+
+swagger:
+  servers:
+    url: http://127.0.0.1:8080/
+
+web-search:
+  # Keep the local QA build usable while a personal-space Coze search
+  # workflow is unpublished or unavailable to the runtime PAT.
+  fallback-on-coze-configuration-error: true
+  # Local proxy support is intentionally limited in code to loopback HTTP
+  # endpoints, preserving the Bing-only SSRF boundary while supporting
+  # fake-IP proxy/DNS modes used by local developer machines.
+  proxy-url: ${WEB_SEARCH_PROXY_URL:${HTTPS_PROXY:${HTTP_PROXY:}}}
+
+management:
+  health:
+    mongo:
+      enabled: false
+    redis:
+      enabled: false
+    db:
+      enabled: false
+    r2dbc:
+      enabled: false

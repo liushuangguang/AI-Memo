@@ -1,0 +1,428 @@
+{
+  "schema_version": 5,
+  "project": "AI备忘录",
+  "version": "0.1.5+7 测试版待验收",
+  "project_dir": "C:/Users/Administrator/Documents/ChatGPT/AI备忘录",
+  "catalog_id": "9303d6c45c90ec82f6d625fbdaba52050faf1f55571b0c6fb87f795fe1f87c76",
+  "updated_at": "2026-09-06T06:10:31.0554517Z",
+  "updated_at_ms": 1788675031055,
+  "items": {
+    "BUG-007": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "后端已将私有图片地址保存在note.imageUrl；编辑器只绘制modules，未展示顶层imageUrl",
+        "补来源截图卡片与大图查看，不复制上传或修改原图，沿用仅向本后端私有路径发送鉴权的边界"
+      ],
+      "similar_risks": [
+        "长截图缩略图和查看原图",
+        "断网不能静默空白",
+        "旧笔记有图片但无modules",
+        "原图不能被AI配图覆盖"
+      ],
+      "fix_summary": "保留原截图、展示来源图卡、支持大图和失败重试，鉴权只发给同源私有图片接口。",
+      "primary_module": "截图识别",
+      "secondary_module": "笔记来源图片",
+      "expected": "原截图和识别文字同时保留，截图可查看大图；加载失败可重试且不消失。",
+      "steps": [
+        "打开截图生成的笔记",
+        "查看文字和附件",
+        "重新打开笔记"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-006": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "核对模块展示、开关持久化、笔记保存后的触发路径及生成结果保存",
+        "依据代码和真实请求识别断点，再补最小自动执行或结果刷新"
+      ],
+      "similar_risks": [
+        "修改正文后读取过期分析",
+        "开关开启但服务只保存布尔值",
+        "失败与无匹配分类混淆"
+      ],
+      "fix_summary": "开关持久化并触发真实整理；正文变化使旧结果失效；分类及场景弹层可实时刷新。",
+      "primary_module": "AI功能",
+      "secondary_module": "自动整理触发与归类",
+      "expected": "自动整理有实际执行及可见结果，不只改变开关外观，原文不会被自动改写。",
+      "steps": [
+        "打开自动整理模块",
+        "开启开关",
+        "修改正文并保存",
+        "查看归类和情景记录"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-001": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "现状只有通知和回到APP后的确认弹窗；在原截图监听服务中加入原生跨应用确认浮层",
+        "保留显式确认、队列、重试及用户关闭能力，关闭监听时销毁浮层"
+      ],
+      "similar_risks": [
+        "权限撤销和服务销毁后的悬挂窗口",
+        "浮层遮挡截图或误触",
+        "手机后台限制"
+      ],
+      "fix_summary": "新增原生跨应用浮层和持久截图队列；独立同意后仅授权之后的新截图自动生成；失败显式重试，完成后只打开准确笔记，原生编译及24项测试通过。Android16后台表现待真机验收。",
+      "primary_module": "截图识别",
+      "secondary_module": "跨应用浮层",
+      "expected": "开启监听且权限完整时出现浮层；默认逐张确认。独立同意自动上传后仅新截图可自动生成，失败显式重试，原图和精确笔记ID保留。",
+      "steps": [
+        "允许相关权限",
+        "切到微信并截图"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-002": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "加入系统特殊悬浮窗授权页面和返回复核",
+        "区分运行时照片/通知权限与特殊授权，并同步开关真实状态"
+      ],
+      "similar_risks": [
+        "Android14仅选中照片访问",
+        "永久拒绝授权",
+        "授权途中取消"
+      ],
+      "fix_summary": "照片、通知、悬浮窗权限逐项引导并复核；系统限制不能绕过。仍待Android16真机检查。",
+      "primary_module": "截图识别",
+      "secondary_module": "设置权限开关",
+      "expected": "引导照片、通知和上层显示授权；任一必需权限缺失时不显示已开启。",
+      "steps": [
+        "打开设置",
+        "开启微信截图识别",
+        "拒绝或允许系统授权后返回"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-003": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "先用合成群聊复现并核对前后端超时和数据解析，禁止仅凭猜测增加分段架构",
+        "根据实际错误修复最小请求或解析边界，保留并行模块成功结果"
+      ],
+      "similar_risks": [
+        "非法结构和真实超时",
+        "原文不可被失败结果覆盖",
+        "长截图拼接重复，不应误删正常卡片"
+      ],
+      "fix_summary": "生成请求预算延长且禁自动重放；整理失败不覆盖原文，重试保留已成功模块。新后端实测22秒及75秒完成。",
+      "primary_module": "AI功能",
+      "secondary_module": "智能整理",
+      "expected": "整理正文成功展示，失败可明确重试且不覆盖原文。",
+      "steps": [
+        "打开笔记",
+        "进入智能整理"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-004": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "保留入口或用户明确选择，防止异步返回覆盖",
+        "显示模型推荐的动态方向为可操作选项，消除隐藏选择",
+        "验证生成链路并给出可恢复的失败状态"
+      ],
+      "similar_risks": [
+        "推荐期间手动选择被覆盖",
+        "动态方向和固定枚举不匹配",
+        "重复请求及关闭后状态更新"
+      ],
+      "fix_summary": "明确选择不会被推荐覆盖；动态推荐可选；无ID/保存失败不启动生成；错误可重试。",
+      "primary_module": "AI功能",
+      "secondary_module": "内容辅助选择和生成",
+      "expected": "快捷方向不会被异步推荐覆盖，推荐可见可选，生成内容可预览后确认写回。",
+      "steps": [
+        "点击简单优化表达或内容辅助",
+        "等待推荐",
+        "选择方向并开始辅写"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-005": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "用弹层实际约束分配滚动正文与底部区域",
+        "移除基于整屏高度的重复固定预留，适配安全区及键盘"
+      ],
+      "similar_risks": [
+        "小屏幕",
+        "较大字体",
+        "键盘安全区"
+      ],
+      "fix_summary": "用弹层约束分配滚动区和安全底栏；小屏与大字体测试通过，保留原始截图。",
+      "primary_module": "AI功能",
+      "secondary_module": "内容辅助底部布局",
+      "expected": "开始辅写和关闭按钮完整可点，没有黄色溢出条。",
+      "steps": [
+        "等待推荐内容显示",
+        "滚动到底部"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-008": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "后端兼容受控历史返回格式且严格校验原文；完整候选/手输/前后切换及320宽大字体测试通过。",
+      "primary_module": "AI功能",
+      "secondary_module": "信息完善候选、手输、高亮与失败解析",
+      "expected": "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。",
+      "steps": [
+        "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-009": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "移除正文固定500高度；详情按生命周期失效，异常进入重试。",
+      "primary_module": "AI功能",
+      "secondary_module": "相关详情与整理正文裁切",
+      "expected": "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。",
+      "steps": [
+        "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-010": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "新增所有权校验的历史接口和只读来源预览；HTTP验证1条历史、3条来源及异身份403，ABA切换不打开旧来源。",
+      "primary_module": "笔记",
+      "secondary_module": "合并笔记来源与历史",
+      "expected": "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。",
+      "steps": [
+        "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    },
+    "BUG-011": {
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "系统和工具栏返回统一保存门禁；同笔记写入排队；创建中编辑保留服务端模块ID及新草稿，后续可重试保存；回顾确认替换正确接线。",
+      "primary_module": "笔记",
+      "secondary_module": "保存、返回与并发模块回退",
+      "expected": "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。",
+      "steps": [
+        "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。"
+      ],
+      "verification_evidence": "最终Flutter全量187项、后端679项、Android原生24项测试通过；真实AI接口已验证。未进行Android真机验收。",
+      "priority": 3,
+      "attachments": []
+    }
+  },
+  "bugs": [
+    {
+      "id": "REQ-001",
+      "entry_type": "requirement",
+      "module": "other",
+      "submodule": "使用TabToTask的AI渠道",
+      "text": "AI使用TabToTask项目中的AI渠道。",
+      "conversation_period": "2026-09-06",
+      "created_at": "2026-09-05T21:47:32.898Z",
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "needs-clarification",
+      "repair_plan": [
+        "网关当前只接受TabToTask特定任务契约，不能直接当通用聊天API",
+        "备忘录后端已支持独立OpenAI兼容配置，待渠道方案/凭据"
+      ],
+      "similar_risks": [
+        "共用生产密钥的额度与泄漏影响"
+      ],
+      "primary_module": "AI渠道",
+      "secondary_module": "独立接入",
+      "expected": "备忘录使用确认的TabToTask同供应商渠道，密钥只在后端，现有产品不受影响",
+      "steps": [
+        "配置备忘录专用渠道",
+        "验证真实生成"
+      ],
+      "verification_evidence": "当前仍为已有Dify/Coze/DeepSeek，未宣称切换成功",
+      "priority": 3,
+      "images": [],
+      "description_history": []
+    },
+    {
+      "id": "BUG-012",
+      "entry_type": "bug",
+      "module": "other",
+      "submodule": "安装包原生依赖",
+      "text": "完整检查视频功能和UI并修复：最终打包检查发现备用命令缺少Flutter路径，原生剪贴板依赖未入包。未将此现象认定为此前白屏的唯一原因。",
+      "conversation_period": "2026-09-06",
+      "created_at": "2026-09-06T06:10:31.0498963Z",
+      "default_priority": 3,
+      "manual_priority": 0,
+      "priority_source": "ai_default",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "note": "",
+      "questions": "",
+      "description_history": [],
+      "repair_plan": [
+        "检查实际APK库文件，定位备用Gradle命令遗漏FLUTTER_ROOT，导致原生构建脚本无法执行Dart",
+        "补齐单次构建环境并重新编译，校验三种架构必要库、签名及64位ELF的16KB对齐"
+      ],
+      "similar_risks": [
+        "构建退出成功不等于必需库已入包",
+        "手机16KB页大小与原生库兼容",
+        "缺件不等于已证实白屏根因"
+      ],
+      "primary_module": "安装与运行",
+      "secondary_module": "原生依赖完整性",
+      "expected": "本轮APK必需原生库齐全且正确对齐，安装后新建编辑、粘贴和图片识别无缺库异常",
+      "steps": [
+        "覆盖安装本轮APK",
+        "新建编辑笔记并复制粘贴",
+        "导入截图并打开识别笔记"
+      ],
+      "fix_summary": "修正构建环境，重新编译并入包super_native_extensions；arm64/armv7/x86_64必要库齐全，64位全部原生库通过16KB段对齐，签名与旧版一致。",
+      "verification_evidence": "最终APK 215031746字节；SHA256 F0A16F6C18C3AC5EC803065A0B0028992E37811BA081D331DD79BC48BDC4E052；无真机验收。未提供此打包问题的手机原始截图。"
+    }
+  ],
+  "bug_draft": {},
+  "filters": {
+    "workbench": {
+      "search": "",
+      "module": "all",
+      "type": "all",
+      "period": "all",
+      "decision": "all",
+      "completion": "all",
+      "repair": "all"
+    }
+  },
+  "selected_id": "BUG-004"
+}

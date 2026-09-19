@@ -1,0 +1,34 @@
+{
+  "generated": "2026-09-02T07:10:48.2412252+08:00",
+  "staging": "C:\\ainote_app_ascii_staging_20260902_final",
+  "apiDefault": "https://aifunc.top",
+  "apiLocal": "http://192.168.31.213:8080",
+  "artifacts": [
+    {
+      "file": "ainote-debug-default-20260902-final-ai-workflows.apk",
+      "bytes": 170772543,
+      "sha256": "a7fc1bbcfd492ba1ca9cd47434520cdf6ff726e5294d6cb8c7efe3ed09150f8a",
+      "package": "aifunc.top.ainote_app.debug",
+      "versionCode": 3,
+      "versionName": "0.1.2",
+      "minSdk": 24,
+      "targetSdk": 36,
+      "kernel": "/assets/flutter_assets/kernel_blob.bin",
+      "zipalign": "4 -P 16 verified",
+      "signature": "v2 verified"
+    },
+    {
+      "file": "ainote-debug-local-20260902-final-ai-workflows.apk",
+      "bytes": 170772619,
+      "sha256": "f7b00ab733231ffa5d6e2730194b3b9032ce8d5fc25d9ccaeb6f2349c1aa55c7",
+      "package": "aifunc.top.ainote_app.debug",
+      "versionCode": 3,
+      "versionName": "0.1.2",
+      "minSdk": 24,
+      "targetSdk": 36,
+      "kernel": "/assets/flutter_assets/kernel_blob.bin",
+      "zipalign": "4 -P 16 verified",
+      "signature": "v2 verified"
+    }
+  ]
+}

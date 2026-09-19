@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI备忘录 Agent 全景设计",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1230, 780],
+    "views": [
+      {"id": "capture", "label": "记录入口", "focus": ["user", "capture", "experience", "orchestrator", "knowledgeStore"], "note": "文字、语音、截图与分享先形成原始记录；截图候选由用户确认，保存不等待 AI 完成。"},
+      {"id": "clarify", "label": "信息完善", "focus": ["experience", "orchestrator", "clarifyAgent", "modelGateway", "knowledgeStore"], "note": "识别含糊词句并逐题给候选，也允许手输；用户确认后才替换原文并继续整理。"},
+      {"id": "organize", "label": "智能整理", "focus": ["experience", "orchestrator", "organizeAgent", "assistAgent", "modelGateway", "externalSources", "analysisStore"], "note": "先过有效性门禁，再并行生成结构、建议、关联、归类、配图、回顾、商品参考与讨论入口。"},
+      {"id": "merge", "label": "主题合并", "focus": ["experience", "orchestrator", "mergeAgent", "knowledgeStore", "analysisStore", "modelGateway"], "note": "AI 推荐候选，用户选择 2–20 条后创建新笔记；源记录不改写，来源与合并历史可追溯。"},
+      {"id": "trust", "label": "用户控制", "focus": ["user", "experience", "orchestrator", "knowledgeStore", "analysisStore"], "note": "自动生成与写回分离：预览、逐项保留、保存卡片、替换正文、取消与重试都有明确状态。"}
+    ]
+  },
+  "components": [
+    {"id": "user", "type": "external", "label": "用户", "sublabel": "记录、判断、确认、纠正与回看", "pos": [20, 336], "size": [145, 82]},
+    {"id": "capture", "type": "frontend", "label": "多入口记录", "sublabel": "文字 / 语音 / 截图 / 系统分享 / 选图", "tag": "设备侧确认 + OCR", "pos": [190, 85], "size": [205, 88]},
+    {"id": "experience", "type": "frontend", "label": "Agent 体验层", "sublabel": "原文、进度、结果卡片、局部保存与替换", "tag": "Flutter / GetX", "pos": [190, 330], "size": [205, 94]},
+    {"id": "orchestrator", "type": "backend", "label": "Agent 编排与状态守卫", "sublabel": "归属校验、内容快照、顺序、并发、超时与降级", "tag": "Spring WebFlux", "pos": [450, 330], "size": [220, 94]},
+    {"id": "clarifyAgent", "type": "backend", "label": "信息完善 Agent", "sublabel": "找出含糊项；候选 / 手输 / 逐题确认", "pos": [730, 65], "size": [205, 82]},
+    {"id": "organizeAgent", "type": "backend", "label": "智能整理核心 Agent", "sublabel": "有效性、标题正文、待办、场景、标签与建议", "pos": [730, 225], "size": [205, 88]},
+    {"id": "assistAgent", "type": "backend", "label": "知识与行动辅助 Agent", "sublabel": "关联、归类、回顾、商品与语音讨论", "pos": [730, 385], "size": [205, 88]},
+    {"id": "mergeAgent", "type": "backend", "label": "主题合并 Agent", "sublabel": "候选排序、选中合并、来源保留与历史", "pos": [730, 545], "size": [205, 82]},
+    {"id": "modelGateway", "type": "cloud", "label": "模型与工作流网关", "sublabel": "Dify / Coze / DeepSeek / 百炼", "tag": "密钥只在后端", "pos": [1010, 145], "size": [190, 90]},
+    {"id": "externalSources", "type": "external", "label": "外部信息来源", "sublabel": "网页、相关链接、商品来源与图片结果", "tag": "来源可查看", "pos": [1010, 330], "size": [190, 88]},
+    {"id": "knowledgeStore", "type": "database", "label": "用户知识库", "sublabel": "原文、图片、模块、主题与来源笔记", "tag": "用户归属隔离", "pos": [1010, 535], "size": [190, 90]},
+    {"id": "analysisStore", "type": "database", "label": "分析与操作记录", "sublabel": "recordId、快照、生成结果、幂等与合并历史", "pos": [450, 595], "size": [220, 88]}
+  ],
+  "boundaries": [
+    {"kind": "region", "label": "用户设备与客户端", "wraps": ["capture", "experience"], "pad": 18},
+    {"kind": "region", "label": "当前后端主链路", "wraps": ["orchestrator", "clarifyAgent", "organizeAgent", "assistAgent", "mergeAgent", "knowledgeStore", "analysisStore"], "pad": 18}
+  ],
+  "connections": [
+    {"id": "userCapture", "from": "user", "to": "capture", "label": "快速记录", "variant": "emphasis"},
+    {"id": "userExperience", "from": "user", "to": "experience", "label": "编辑与确认", "variant": "emphasis", "labelAt": [177, 438]},
+    {"id": "captureReview", "from": "capture", "to": "experience", "label": "候选确认后保存", "labelAt": [292, 187]},
+    {"id": "clientRuntime", "from": "experience", "to": "orchestrator", "label": "REST / SSE", "variant": "emphasis"},
+    {"id": "dispatchClarify", "from": "orchestrator", "to": "clarifyAgent"},
+    {"id": "dispatchOrganize", "from": "orchestrator", "to": "organizeAgent"},
+    {"id": "dispatchAssist", "from": "orchestrator", "to": "assistAgent"},
+    {"id": "dispatchMerge", "from": "orchestrator", "to": "mergeAgent"},
+    {"id": "organizeModel", "from": "organizeAgent", "to": "modelGateway"},
+    {"id": "assistSources", "from": "assistAgent", "to": "externalSources", "label": "检索与来源"},
+    {"id": "ownedStore", "from": "orchestrator", "to": "knowledgeStore", "label": "归属校验后读写", "variant": "security", "fromSide": "bottom", "toSide": "left", "via": [[560, 500], [970, 500], [970, 580]], "labelAt": [850, 514]},
+    {"id": "analysisSnapshot", "from": "orchestrator", "to": "analysisStore", "label": "快照与运行状态", "fromSide": "bottom", "toSide": "top", "labelAt": [620, 535]},
+    {"id": "mergeHistory", "from": "mergeAgent", "to": "analysisStore", "label": "幂等与来源历史", "fromSide": "left", "toSide": "right", "via": [[700, 586], [700, 710], [680, 710], [680, 639]], "labelAt": [700, 700]}
+  ],
+  "cards": [
+    {"dot": "emerald", "title": "智能整理不是一个节点", "items": ["核心理解：有效性、标题正文、待办、场景、标签、AI 建议。", "知识拓展：相关标题、相关链接、相关备忘录、信息归类、AI 配图。", "行动辅助：内容辅助、回顾与启发、商品选购参考、语音讨论。"]},
+    {"dot": "amber", "title": "控制合同与实现边界", "items": ["保存与 AI 处理分开；模块可独立加载、取消、重试和保存，替换正文需要确认，迟到结果会丢弃。", "文档中的智慧决策、模拟问答、待办完善、智能日程仍是规划能力；独立 Python 向量服务未定位到 Spring 主链路调用。"]}
+  ]
+}

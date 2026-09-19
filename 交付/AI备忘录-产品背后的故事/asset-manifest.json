@@ -1,0 +1,45 @@
+{
+  "checkedOn": "2026-09-06",
+  "source": "Figma AI备忘录-V2版（最新）, 0:1",
+  "renderScale": 3,
+  "sourceNodeIds": [
+    "2897:17622",
+    "4684:25750",
+    "3844:26238",
+    "5171:34396"
+  ],
+  "illustrativeCopyAdjusted": [
+    "entry",
+    "organize"
+  ],
+  "files": [
+    {
+      "file": "public\\ui\\entry.png",
+      "width": 1170,
+      "height": 2532,
+      "bytes": 154633,
+      "sha256": "5f54fd3983befabee0553e633d04987c5842166a1d9ac210f61211fa8d5987a2"
+    },
+    {
+      "file": "public\\ui\\clarify.png",
+      "width": 1170,
+      "height": 2532,
+      "bytes": 119371,
+      "sha256": "2bcd94a18b0c805743ea6bd67d1b2c2cc7433e6d921f4f5ec1dbdaf812d9b320"
+    },
+    {
+      "file": "public\\ui\\organize.png",
+      "width": 1170,
+      "height": 4608,
+      "bytes": 696715,
+      "sha256": "a41642af6dc4b0c15d0fb0486f165dbab1c227132688d34393f30761cd3947fc"
+    },
+    {
+      "file": "public\\ui\\themes.png",
+      "width": 1170,
+      "height": 2556,
+      "bytes": 204662,
+      "sha256": "e4dd70fcd87f748d96a21c8c79b1299cc4ed04b8595bdfcd8f59b103573cdf4c"
+    }
+  ]
+}

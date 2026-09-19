@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "project": "AI备忘录",
+  "version": "0.1.5+7 测试版待验收",
+  "expected_item_count": 11,
+  "groups": [
+    [
+      "capture",
+      "截图识别"
+    ],
+    [
+      "organize",
+      "智能整理"
+    ],
+    [
+      "assist",
+      "内容辅助"
+    ],
+    [
+      "other",
+      "其他"
+    ]
+  ],
+  "periods": [
+    [
+      "2026-09-06",
+      "9月6日手机反馈"
+    ]
+  ],
+  "items": [
+    {
+      "id": "BUG-007",
+      "group": "capture",
+      "title": "截图识别笔记未展示来源截图",
+      "source_period": "2026-09-06",
+      "source_feedback": "微信截图识别生成的备忘录也没有把截图放入到备忘录中。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "截图识别",
+      "secondary_module": "笔记来源图片",
+      "precondition": "确认截图识别并保存笔记",
+      "steps": [
+        "打开截图生成的笔记",
+        "查看文字和附件",
+        "重新打开笔记"
+      ],
+      "expected": "原截图和识别文字同时保留，截图可查看大图；加载失败可重试且不消失。",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "后端已将私有图片地址保存在note.imageUrl；编辑器只绘制modules，未展示顶层imageUrl",
+        "补来源截图卡片与大图查看，不复制上传或修改原图，沿用仅向本后端私有路径发送鉴权的边界"
+      ],
+      "similar_risks": [
+        "长截图缩略图和查看原图",
+        "断网不能静默空白",
+        "旧笔记有图片但无modules",
+        "原图不能被AI配图覆盖"
+      ],
+      "automation": "保留原截图、展示来源图卡、支持大图和失败重试，鉴权只发给同源私有图片接口。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "保留原截图、展示来源图卡、支持大图和失败重试，鉴权只发给同源私有图片接口。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "微信截图识别生成的备忘录也没有把截图放入到备忘录中。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-006",
+      "group": "organize",
+      "title": "自动整理似乎没有工作",
+      "source_period": "2026-09-06",
+      "source_feedback": "另外，自动整理模块也是好像没有工作的。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "AI功能",
+      "secondary_module": "自动整理触发与归类",
+      "precondition": "笔记中开启自动整理",
+      "steps": [
+        "打开自动整理模块",
+        "开启开关",
+        "修改正文并保存",
+        "查看归类和情景记录"
+      ],
+      "expected": "自动整理有实际执行及可见结果，不只改变开关外观，原文不会被自动改写。",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "核对模块展示、开关持久化、笔记保存后的触发路径及生成结果保存",
+        "依据代码和真实请求识别断点，再补最小自动执行或结果刷新"
+      ],
+      "similar_risks": [
+        "修改正文后读取过期分析",
+        "开关开启但服务只保存布尔值",
+        "失败与无匹配分类混淆"
+      ],
+      "automation": "开关持久化并触发真实整理；正文变化使旧结果失效；分类及场景弹层可实时刷新。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "开关持久化并触发真实整理；正文变化使旧结果失效；分类及场景弹层可实时刷新。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "另外，自动整理模块也是好像没有工作的。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-001",
+      "group": "capture",
+      "title": "微信截图没有跨应用识别浮层",
+      "source_period": "2026-09-06",
+      "source_feedback": "微信中截图的时候，没有在微信上层出现识别浮层。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "截图识别",
+      "secondary_module": "跨应用浮层",
+      "precondition": "Android安装本轮APK并开启截图识别",
+      "steps": [
+        "允许相关权限",
+        "切到微信并截图"
+      ],
+      "expected": "开启监听且权限完整时出现浮层；默认逐张确认。独立同意自动上传后仅新截图可自动生成，失败显式重试，原图和精确笔记ID保留。",
+      "repair_status": "in-progress",
+      "repair_plan": [
+        "现状只有通知和回到APP后的确认弹窗；在原截图监听服务中加入原生跨应用确认浮层",
+        "保留显式确认、队列、重试及用户关闭能力，关闭监听时销毁浮层"
+      ],
+      "similar_risks": [
+        "权限撤销和服务销毁后的悬挂窗口",
+        "浮层遮挡截图或误触",
+        "手机后台限制"
+      ],
+      "automation": "新增原生跨应用浮层及持久截图队列；独立同意自动生成后才处理授权之后的新截图。后台路径仍在最终检查。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "新增原生跨应用浮层及持久截图队列；独立同意自动生成后才处理授权之后的新截图。后台路径仍在最终检查。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "微信中截图的时候，没有在微信上层出现识别浮层。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-002",
+      "group": "capture",
+      "title": "开启截图识别没有上层显示授权",
+      "source_period": "2026-09-06",
+      "source_feedback": "设置中开启微信截图识别功能时，没有让我获取对应的手机系统权限。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "截图识别",
+      "secondary_module": "设置权限开关",
+      "precondition": "未给予APP悬浮窗和照片权限",
+      "steps": [
+        "打开设置",
+        "开启微信截图识别",
+        "拒绝或允许系统授权后返回"
+      ],
+      "expected": "引导照片、通知和上层显示授权；任一必需权限缺失时不显示已开启。",
+      "repair_status": "in-progress",
+      "repair_plan": [
+        "加入系统特殊悬浮窗授权页面和返回复核",
+        "区分运行时照片/通知权限与特殊授权，并同步开关真实状态"
+      ],
+      "similar_risks": [
+        "Android14仅选中照片访问",
+        "永久拒绝授权",
+        "授权途中取消"
+      ],
+      "automation": "照片、通知、悬浮窗权限逐项引导并复核；系统限制不能绕过。仍待Android16真机检查。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "照片、通知、悬浮窗权限逐项引导并复核；系统限制不能绕过。仍待Android16真机检查。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "设置中开启微信截图识别功能时，没有让我获取对应的手机系统权限。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-003",
+      "group": "organize",
+      "title": "群聊笔记智能整理失败",
+      "source_period": "2026-09-06",
+      "source_feedback": "AI智能整理现在报错“智能整理失败，请稍后重试”。",
+      "source_images": [
+        "codex-clipboard-9d46ad83-cd72-46ce-a9fa-fe5eb55e1c9f.jpg"
+      ],
+      "evidence_images": [],
+      "primary_module": "AI功能",
+      "secondary_module": "智能整理",
+      "precondition": "含长群聊文本的备忘录",
+      "steps": [
+        "打开笔记",
+        "进入智能整理"
+      ],
+      "expected": "整理正文成功展示，失败可明确重试且不覆盖原文。",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "先用合成群聊复现并核对前后端超时和数据解析，禁止仅凭猜测增加分段架构",
+        "根据实际错误修复最小请求或解析边界，保留并行模块成功结果"
+      ],
+      "similar_risks": [
+        "非法结构和真实超时",
+        "原文不可被失败结果覆盖",
+        "长截图拼接重复，不应误删正常卡片"
+      ],
+      "automation": "生成请求预算延长且禁自动重放；整理失败不覆盖原文，重试保留已成功模块。新后端实测22秒及75秒完成。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "生成请求预算延长且禁自动重放；整理失败不覆盖原文，重试保留已成功模块。新后端实测22秒及75秒完成。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "AI智能整理现在报错“智能整理失败，请稍后重试”。",
+      "source_images_original_paths": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\codex-clipboard-9d46ad83-cd72-46ce-a9fa-fe5eb55e1c9f.jpg"
+      ],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": []
+    },
+    {
+      "id": "BUG-004",
+      "group": "assist",
+      "title": "内容辅助推荐与实际选项脱节",
+      "source_period": "2026-09-06",
+      "source_feedback": "AI内容辅助模块无法使用。",
+      "source_images": [
+        "codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c.jpg"
+      ],
+      "evidence_images": [
+        "content_assist_bug004_005_fixed.png"
+      ],
+      "primary_module": "AI功能",
+      "secondary_module": "内容辅助选择和生成",
+      "precondition": "存在可辅助的笔记正文",
+      "steps": [
+        "点击简单优化表达或内容辅助",
+        "等待推荐",
+        "选择方向并开始辅写"
+      ],
+      "expected": "快捷方向不会被异步推荐覆盖，推荐可见可选，生成内容可预览后确认写回。",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "保留入口或用户明确选择，防止异步返回覆盖",
+        "显示模型推荐的动态方向为可操作选项，消除隐藏选择",
+        "验证生成链路并给出可恢复的失败状态"
+      ],
+      "similar_risks": [
+        "推荐期间手动选择被覆盖",
+        "动态方向和固定枚举不匹配",
+        "重复请求及关闭后状态更新"
+      ],
+      "automation": "明确选择不会被推荐覆盖；动态推荐可选；无ID/保存失败不启动生成；错误可重试。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "明确选择不会被推荐覆盖；动态推荐可选；无ID/保存失败不启动生成；错误可重试。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "AI内容辅助模块无法使用。",
+      "source_images_original_paths": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c.jpg"
+      ],
+      "evidence_images_original_paths": [
+        "L:\\ainote-qa-20260906\\app-source\\test\\content_assist_bug004_005_fixed.png"
+      ],
+      "traceability_warnings": []
+    },
+    {
+      "id": "BUG-005",
+      "group": "assist",
+      "title": "内容辅助底部溢出和关闭按钮遮挡",
+      "source_period": "2026-09-06",
+      "source_feedback": "UI下方多余一部分。",
+      "source_images": [
+        "codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c-75ca5cbe25.jpg"
+      ],
+      "evidence_images": [
+        "content_assist_bug004_005_fixed-69f94120fe.png"
+      ],
+      "primary_module": "AI功能",
+      "secondary_module": "内容辅助底部布局",
+      "precondition": "手机打开内容辅助弹层",
+      "steps": [
+        "等待推荐内容显示",
+        "滚动到底部"
+      ],
+      "expected": "开始辅写和关闭按钮完整可点，没有黄色溢出条。",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "用弹层实际约束分配滚动正文与底部区域",
+        "移除基于整屏高度的重复固定预留，适配安全区及键盘"
+      ],
+      "similar_risks": [
+        "小屏幕",
+        "较大字体",
+        "键盘安全区"
+      ],
+      "automation": "用弹层约束分配滚动区和安全底栏；小屏与大字体测试通过，保留原始截图。",
+      "status": "untested",
+      "completion_status": "open",
+      "fix_summary": "用弹层约束分配滚动区和安全底栏；小屏与大字体测试通过，保留原始截图。",
+      "verification_evidence": "679项后端测试通过；前端186项全量通过后，新增保存回归8项通过。未进行Android真机验收。",
+      "source": "UI下方多余一部分。",
+      "source_images_original_paths": [
+        "C:\\Users\\Administrator\\AppData\\Local\\Temp\\codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c.jpg"
+      ],
+      "evidence_images_original_paths": [
+        "L:\\ainote-qa-20260906\\app-source\\test\\content_assist_bug004_005_fixed.png"
+      ],
+      "traceability_warnings": []
+    },
+    {
+      "id": "BUG-008",
+      "group": "organize",
+      "title": "信息完善候选、手输、高亮与失败解析",
+      "source_period": "2026-09-06",
+      "source_feedback": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "AI功能",
+      "secondary_module": "信息完善候选、手输、高亮与失败解析",
+      "precondition": "本轮测试版APK及本地后端可连接",
+      "steps": [
+        "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。"
+      ],
+      "expected": "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频2信息完善：1–4个候选均可手动输入，前后题切换保留结果，高亮按正文位置。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "后端兼容受控历史返回格式且严格校验原文；完整候选/手输/前后切换及320宽大字体测试通过。",
+      "automation": "后端兼容受控历史返回格式且严格校验原文；完整候选/手输/前后切换及320宽大字体测试通过。",
+      "source": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-009",
+      "group": "organize",
+      "title": "相关详情与整理正文裁切",
+      "source_period": "2026-09-06",
+      "source_feedback": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "AI功能",
+      "secondary_module": "相关详情与整理正文裁切",
+      "precondition": "本轮测试版APK及本地后端可连接",
+      "steps": [
+        "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。"
+      ],
+      "expected": "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频3智能整理：长正文不截断，相关详情关闭或换题后旧结果不更新，失败能重试。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "移除正文固定500高度；详情按生命周期失效，异常进入重试。",
+      "automation": "移除正文固定500高度；详情按生命周期失效，异常进入重试。",
+      "source": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-010",
+      "group": "other",
+      "title": "合并笔记来源与历史",
+      "source_period": "2026-09-06",
+      "source_feedback": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "笔记",
+      "secondary_module": "合并笔记来源与历史",
+      "precondition": "本轮测试版APK及本地后端可连接",
+      "steps": [
+        "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。"
+      ],
+      "expected": "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "视频4信息合并：合并笔记中看到真实来源标题和历史，打开精确来源正文及图片。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "新增所有权校验的历史接口和只读来源预览；HTTP验证1条历史、3条来源及异身份403，ABA切换不打开旧来源。",
+      "automation": "新增所有权校验的历史接口和只读来源预览；HTTP验证1条历史、3条来源及异身份403，ABA切换不打开旧来源。",
+      "source": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    },
+    {
+      "id": "BUG-011",
+      "group": "other",
+      "title": "保存、返回与并发模块回退",
+      "source_period": "2026-09-06",
+      "source_feedback": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images": [],
+      "evidence_images": [],
+      "primary_module": "笔记",
+      "secondary_module": "保存、返回与并发模块回退",
+      "precondition": "本轮测试版APK及本地后端可连接",
+      "steps": [
+        "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。"
+      ],
+      "expected": "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。",
+      "status": "untested",
+      "completion_status": "open",
+      "repair_status": "fixed-awaiting-review",
+      "repair_plan": [
+        "返回需等待保存，失败留住可编辑草稿；同笔记保存不能让旧响应覆盖新模块。"
+      ],
+      "similar_risks": [
+        "异步响应在切换、关闭和重试时回写过期状态"
+      ],
+      "fix_summary": "系统和工具栏返回统一保存门禁；同笔记写入排队；创建中编辑保留服务端模块ID及新草稿，后续可重试保存；回顾确认替换正确接线。",
+      "automation": "系统和工具栏返回统一保存门禁；同笔记写入排队；创建中编辑保留服务端模块ID及新草稿，后续可重试保存；回顾确认替换正确接线。",
+      "source": "对照视频中的每个环节，检查功能和UI并修复。",
+      "source_images_original_paths": [],
+      "evidence_images_original_paths": [],
+      "traceability_warnings": [
+        "未提供可读取的用户原始截图"
+      ]
+    }
+  ],
+  "project_dir": "C:/Users/Administrator/Documents/ChatGPT/AI备忘录",
+  "workbench_file": "bug-workbench.html",
+  "sanitized_image_manifest": {
+    "codex-clipboard-9d46ad83-cd72-46ce-a9fa-fe5eb55e1c9f.jpg": {
+      "algorithm": "pillow-pixel-reencode-v3",
+      "format": "JPEG",
+      "pixel_sha256": "09024f4a42c6515f9bf4c5418df21cee90948de63ff1467ce889204498d801da",
+      "output_sha256": "31b939aefeb4b8ffb4ac44647116cba68898427ffa1f889a156646f1c9e23665"
+    },
+    "codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c.jpg": {
+      "algorithm": "pillow-pixel-reencode-v3",
+      "format": "JPEG",
+      "pixel_sha256": "c33d4a461263972f076d43debc9ac57cb7cb42a36b220fd46e3363d335ad94c8",
+      "output_sha256": "01bb78e80563fa9ef0666f09766534908141902c730730eba592dc68ec3f8696"
+    },
+    "content_assist_bug004_005_fixed.png": {
+      "algorithm": "pillow-pixel-reencode-v3",
+      "format": "PNG",
+      "pixel_sha256": "c24279351525b290451831b7822e10f664595fb18b6b432a3ffc4431ad832088",
+      "output_sha256": "5ab961a5e9d8c533281e04205bc191c4add91d51d0257369f1f999bc1a867323"
+    },
+    "codex-clipboard-907fad41-6608-40ad-be6a-52b1bdce138c-75ca5cbe25.jpg": {
+      "algorithm": "pillow-pixel-reencode-v3",
+      "format": "JPEG",
+      "pixel_sha256": "c33d4a461263972f076d43debc9ac57cb7cb42a36b220fd46e3363d335ad94c8",
+      "output_sha256": "01bb78e80563fa9ef0666f09766534908141902c730730eba592dc68ec3f8696"
+    },
+    "content_assist_bug004_005_fixed-69f94120fe.png": {
+      "algorithm": "pillow-pixel-reencode-v3",
+      "format": "PNG",
+      "pixel_sha256": "c24279351525b290451831b7822e10f664595fb18b6b432a3ffc4431ad832088",
+      "output_sha256": "5ab961a5e9d8c533281e04205bc191c4add91d51d0257369f1f999bc1a867323"
+    }
+  },
+  "workbench_canonical_sha256": "b6409c67de534fcb8b99ddb8cd016e5056e780bb728fcb024b3992c0b14ffcd2",
+  "catalog_id": "9303d6c45c90ec82f6d625fbdaba52050faf1f55571b0c6fb87f795fe1f87c76",
+  "workbench_sha256": "441e324902d6f81cf070aa36acfc13e20e787d8ea22ae8960d8cf29c46200c2a"
+}

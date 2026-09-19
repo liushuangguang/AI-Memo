@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "AI备忘录：智能整理 Agent 详细工作流",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1600, 900],
+    "views": [
+      {"id": "main", "label": "主处理链", "focus": ["trigger", "snapshot", "validate", "analysisRecord", "restructure", "fanout", "aggregate", "review", "userAction", "noteStore"], "note": "从保存触发到结果预览，再到用户确认写回；原记录先保存，AI 在后台继续。"},
+      {"id": "parallel", "label": "并行子能力", "focus": ["fanout", "suggestion", "relatedTitles", "relatedLinks", "relatedNotes", "categorize", "illustration", "reflection", "products"], "note": "核心正文完成后，多项能力并行返回；单项失败不阻断其他结果。"},
+      {"id": "assist", "label": "交互式辅助", "focus": ["review", "contentAssist", "reflection", "products", "voiceDiscuss", "userAction", "noteStore"], "note": "用户可以继续改写、讨论、查看来源、保存卡片或替换正文。"},
+      {"id": "planned", "label": "文档规划能力", "focus": ["plannedDecision", "plannedQA", "plannedTodo", "plannedSchedule"], "note": "飞书文档明确列出，但当前代码尚未定位到完整可达链路，图中以规划态展示。"},
+      {"id": "recovery", "label": "失败与恢复", "focus": ["snapshot", "validate", "invalid", "fanout", "review", "userAction", "noteStore"], "note": "无意义内容停止下游；模块失败显示空态或重试；换笔记后迟到结果被丢弃。"}
+    ]
+  },
+  "lanes": [
+    {"id": "interaction", "label": "用户与界面"},
+    {"id": "runtime", "label": "编排与门禁"},
+    {"id": "core", "label": "内容理解与结构化"},
+    {"id": "discovery", "label": "关联与信息拓展"},
+    {"id": "assistance", "label": "行动与深度辅助"},
+    {"id": "planned", "label": "规划能力 / 恢复边界", "variant": "exception"}
+  ],
+  "phases": [
+    {"id": "start", "label": "触发与上下文", "fromCol": 0, "toCol": 0},
+    {"id": "gate", "label": "门禁与记录", "fromCol": 1, "toCol": 1, "variant": "security"},
+    {"id": "understand", "label": "核心理解", "fromCol": 2, "toCol": 2, "variant": "emphasis"},
+    {"id": "expand", "label": "并行拓展", "fromCol": 3, "toCol": 3},
+    {"id": "decide", "label": "用户判断", "fromCol": 4, "toCol": 4, "variant": "emphasis"},
+    {"id": "commit", "label": "写回与恢复", "fromCol": 5, "toCol": 5, "variant": "dashed"}
+  ],
+  "groups": [
+    {"id": "coreGroup", "label": "当前核心输出", "lane": "core", "fromCol": 2, "toCol": 4, "variant": "emphasis"},
+    {"id": "discoveryGroup", "label": "自动并行模块", "lane": "discovery", "fromCol": 1, "toCol": 5, "variant": "default"},
+    {"id": "assistGroup", "label": "自动生成 + 用户按需进入", "lane": "assistance", "fromCol": 0, "toCol": 5, "variant": "default"},
+    {"id": "plannedGroup", "label": "两侧是恢复边界；中间四项为文档规划能力", "lane": "planned", "fromCol": 0, "toCol": 5, "variant": "dashed"}
+  ],
+  "mainPath": ["trigger", "snapshot", "validate", "analysisRecord", "restructure", "todoContext", "fanout", "aggregate", "review", "userAction", "noteStore"],
+  "nodes": [
+    {"id": "trigger", "lane": "interaction", "col": 0, "type": "frontend", "label": "触发智能整理", "width": 154},
+    {"id": "progress", "lane": "interaction", "col": 1, "type": "frontend", "label": "显示处理状态", "width": 154},
+    {"id": "review", "lane": "interaction", "col": 4, "type": "frontend", "label": "结果预览与判断", "width": 154},
+    {"id": "userAction", "lane": "interaction", "col": 5, "type": "external", "label": "用户确认动作", "width": 154},
+    {"id": "snapshot", "lane": "runtime", "col": 0, "type": "security", "label": "绑定本次处理快照", "width": 154},
+    {"id": "validate", "lane": "runtime", "col": 1, "type": "security", "label": "语义有效性门禁", "width": 154},
+    {"id": "analysisRecord", "lane": "runtime", "col": 2, "type": "backend", "label": "创建分析记录", "width": 154},
+    {"id": "fanout", "lane": "runtime", "col": 3, "type": "messagebus", "label": "并行分发子能力", "width": 154},
+    {"id": "aggregate", "lane": "runtime", "col": 4, "type": "backend", "label": "聚合可见结果", "width": 154},
+    {"id": "restructure", "lane": "core", "col": 2, "type": "backend", "label": "标题与正文整理", "width": 154},
+    {"id": "todoContext", "lane": "core", "col": 3, "type": "backend", "label": "待办、场景与标签", "width": 154},
+    {"id": "suggestion", "lane": "core", "col": 4, "type": "backend", "label": "流式 AI 建议", "width": 154},
+    {"id": "relatedTitles", "lane": "discovery", "col": 1, "type": "backend", "label": "猜你想看：相关标题", "width": 154},
+    {"id": "relatedLinks", "lane": "discovery", "col": 2, "type": "cloud", "label": "相关链接与原文", "width": 154},
+    {"id": "relatedNotes", "lane": "discovery", "col": 3, "type": "database", "label": "语义相关备忘录", "width": 154},
+    {"id": "categorize", "lane": "discovery", "col": 4, "type": "backend", "label": "信息归类", "width": 154},
+    {"id": "illustration", "lane": "discovery", "col": 5, "type": "cloud", "label": "AI 配图", "width": 154},
+    {"id": "contentAssist", "lane": "assistance", "col": 0, "type": "frontend", "label": "内容辅助", "width": 154},
+    {"id": "reflection", "lane": "assistance", "col": 1, "type": "backend", "label": "回顾与启发", "width": 154},
+    {"id": "products", "lane": "assistance", "col": 2, "type": "cloud", "label": "商品推荐与选购参考", "width": 154},
+    {"id": "voiceDiscuss", "lane": "assistance", "col": 3, "type": "frontend", "label": "语音讨论", "width": 154},
+    {"id": "assistSave", "lane": "assistance", "col": 5, "type": "frontend", "label": "辅助结果确认", "width": 154},
+    {"id": "invalid", "lane": "planned", "col": 0, "type": "security", "label": "停止并解释", "width": 154},
+    {"id": "plannedDecision", "lane": "planned", "col": 1, "type": "external", "label": "智慧决策", "width": 154},
+    {"id": "plannedQA", "lane": "planned", "col": 2, "type": "external", "label": "模拟问答 / 模拟思考", "width": 154},
+    {"id": "plannedTodo", "lane": "planned", "col": 3, "type": "external", "label": "待办完善", "width": 154},
+    {"id": "plannedSchedule", "lane": "planned", "col": 4, "type": "external", "label": "智能日程安排", "width": 154},
+    {"id": "noteStore", "lane": "planned", "col": 5, "type": "database", "label": "保存到用户笔记", "width": 154}
+  ],
+  "edges": [
+    {"id": "startSnapshot", "from": "trigger", "to": "snapshot", "label": "保存成功后", "variant": "emphasis", "role": "main"},
+    {"id": "showProgress", "from": "trigger", "to": "progress", "label": "立即反馈", "role": "branch"},
+    {"id": "snapshotValidate", "from": "snapshot", "to": "validate", "variant": "security", "role": "main"},
+    {"id": "invalidStop", "from": "validate", "to": "invalid", "label": "无意义", "variant": "security", "role": "error"},
+    {"id": "validRecord", "from": "validate", "to": "analysisRecord", "label": "有效内容", "variant": "emphasis", "role": "main"},
+    {"id": "recordOrganize", "from": "analysisRecord", "to": "restructure", "label": "先完成核心整理", "variant": "emphasis", "role": "main"},
+    {"id": "organizeTodo", "from": "restructure", "to": "todoContext", "role": "main"},
+    {"id": "todoFanout", "from": "todoContext", "to": "fanout", "label": "正文可用后", "variant": "emphasis", "role": "main"},
+    {"id": "fanoutAggregate", "from": "fanout", "to": "aggregate", "label": "并行生成并持续聚合", "variant": "emphasis", "role": "main"},
+    {"id": "aggregateReview", "from": "aggregate", "to": "review", "label": "分模块呈现", "variant": "emphasis", "role": "main"},
+    {"id": "reviewChoice", "from": "review", "to": "userAction", "label": "保留判断权", "variant": "emphasis", "role": "main"},
+    {"id": "userCommit", "from": "userAction", "to": "noteStore", "label": "确认后写入", "variant": "emphasis", "role": "main"},
+    {"id": "assistCommit", "from": "assistSave", "to": "noteStore", "label": "保存或替换", "role": "branch"}
+  ],
+  "cards": []
+}

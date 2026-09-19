@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>查询笔记</title>
+  <script>
+    async function fetchNote() {
+      const noteId = document.getElementById("noteId").value;
+      // const response = await fetch(`//47.94.149.194:8080/note/${noteId}`);
+      const response = await fetch(`/note/${noteId}`);
+      if (response.ok) {
+        const note = await response.json();
+        displayNote(note);
+      } else {
+        document.getElementById("result").innerText = "笔记未找到";
+      }
+    }
+
+    function displayNote(note) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = `
+                <h2>${note.title}</h2>
+                <p><strong>类型:</strong> ${note.noteType}</p>
+                <p><strong>设备ID:</strong> ${note.deviceId}</p>
+                <p><strong>原始笔记:</strong> ${note.rawNote}</p>
+                <p><strong>AI分析后的笔记:</strong> ${note.noteAnalysisContent}</p>
+                <p><strong>标签:</strong> ${note.tags}</p>
+                <p><strong>创建时间:</strong> ${note.createdAt}</p>
+                <p><strong>更新时间:</strong> ${note.updatedAt}</p>
+                <p><strong>是否删除:</strong> ${note.isDeleted ? '是' : '否'}</p>
+            `;
+    }
+  </script>
+</head>
+<body>
+<h1>查询笔记详情</h1>
+<input type="number" id="noteId" placeholder="输入笔记 ID" required>
+<button onclick="fetchNote()">查询</button>
+<div id="result" style="margin-top: 20px;"></div>
+</body>
+</html>

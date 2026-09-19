@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#edf1f8">
+  <meta name="description" content="AI备忘录自动整理核心链路交互原型">
+  <title>AI备忘录 · 自动整理交互原型</title>
+  <style>
+  /* finesse · register=h5 · morph=A.1-daily-desk+ai-console · A=pearl+blue+mint+coral · B=system-sans · C=outcome-first-stack · D=native-push+stream · E=liquid-glass · SOUL=8 SPECTACLE=4 DENSITY=6 */
+  :root{
+    --ink:#171826;--ink-2:#4f5267;--muted:#86899b;--faint:#aeb1c1;
+    --surface-soft:#f5f7fb;--white:#fbfcff;--blue:#3d6fe7;--blue-2:#284ead;--mint:#258d73;
+    --coral:#d4675f;--amber:#a97324;--violet:#765cb8;--danger:#b83d50;
+    --glass:rgba(255,255,255,.62);--glass-strong:rgba(255,255,255,.82);
+    --stroke:rgba(255,255,255,.88);--line:rgba(43,48,78,.10);
+    --shadow:0 24px 60px -34px rgba(45,52,91,.42),inset 0 1px rgba(255,255,255,.95);
+    --ease:cubic-bezier(.22,.86,.26,1);--spring:cubic-bezier(.18,1.15,.34,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center;background:#dfe5ef;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+  button,input,textarea{font:inherit;color:inherit}
+  button{border:0;cursor:pointer;background:none}
+  button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(61,111,231,.28);outline-offset:2px}
+  .phone{position:relative;width:100%;height:100%;overflow:hidden;isolation:isolate;background:linear-gradient(155deg,#f9fbff 0%,#eef3f8 54%,#f8f3f1 100%)}
+  .phone::before{content:"";position:absolute;z-index:-2;inset:-10%;background:linear-gradient(125deg,rgba(138,113,213,.18),transparent 27%,rgba(88,169,194,.16) 51%,transparent 71%,rgba(223,145,112,.13));filter:blur(24px);transform:scale(1.08)}
+  .phone::after{content:"";position:absolute;z-index:-1;inset:0;background-image:radial-gradient(rgba(47,53,83,.055) .65px,transparent .65px);background-size:17px 17px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.18),transparent 62%);pointer-events:none}
+  @media(min-width:560px){
+    body{background:radial-gradient(95% 80% at 50% 8%,#f5f2fb 0%,#dbe5ed 58%,#cad3de 100%)}
+    .phone{width:406px;height:min(880px,94vh);border-radius:46px;border:1px solid rgba(255,255,255,.72);box-shadow:0 48px 120px -36px rgba(35,43,71,.55),0 0 0 10px #eef2f7}
+  }
+  .status{position:absolute;z-index:70;top:0;left:0;right:0;height:calc(env(safe-area-inset-top) + 44px);padding:calc(env(safe-area-inset-top) + 12px) 27px 0;display:flex;justify-content:space-between;align-items:flex-start;color:var(--ink);font-size:13px;font-weight:700;pointer-events:none}
+  .status-icons{display:flex;align-items:center;gap:5px}
+  .signal{display:flex;align-items:flex-end;gap:2px;height:11px}.signal i{display:block;width:3px;border-radius:2px;background:currentColor}.signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:6px}.signal i:nth-child(3){height:8px}.signal i:nth-child(4){height:11px}
+  .wifi{width:15px;height:11px;border-top:2px solid;border-radius:50%;position:relative}.wifi::before{content:"";position:absolute;left:3px;top:2px;width:7px;height:6px;border-top:2px solid;border-radius:50%}.wifi::after{content:"";position:absolute;left:6px;top:6px;width:3px;height:3px;border-radius:50%;background:currentColor}
+  .battery{width:23px;height:11px;border:1.5px solid rgba(23,24,38,.55);border-radius:3px;padding:1.5px;position:relative}.battery::before{content:"";display:block;width:72%;height:100%;border-radius:1px;background:currentColor}.battery::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:4px;border-radius:0 2px 2px 0;background:rgba(23,24,38,.45)}
+  .views{position:absolute;inset:0;overflow:hidden}
+  .view{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:calc(env(safe-area-inset-top) + 44px);opacity:0;pointer-events:none;transform:translateX(22px) scale(.99);transition:opacity .24s ease,transform .42s var(--ease)}
+  .view.active{opacity:1;pointer-events:auto;transform:none}
+  .view.push-enter{transform:translateX(100%)}
+  .view.pop-exit{transform:translateX(18%);opacity:.65}
+  .topbar{height:58px;flex:none;padding:0 19px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:8}
+  .topbar-title{position:absolute;left:58px;right:58px;text-align:center;font-size:16px;font-weight:720;letter-spacing:0}
+  .icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:transform .18s var(--ease),background .2s}
+  .icon-btn:active{transform:scale(.87);background:rgba(255,255,255,.72)}
+  .icon-btn svg,.small-icon svg{width:20px;height:20px;stroke-width:1.8}
+  .glass{border:1px solid var(--stroke);background:linear-gradient(145deg,rgba(255,255,255,.74),rgba(255,255,255,.43));box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(155%)}
+  .scroll{flex:1;overflow-y:auto;overflow-x:clip;scrollbar-width:none;padding:0 18px calc(env(safe-area-inset-bottom) + 112px)}
+  .scroll::-webkit-scrollbar{display:none}
+  .home-head{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 4px 15px}
+  .home-head .date{font-size:11px;color:var(--muted);font-weight:620}
+  .home-head h1{font-size:27px;line-height:1.22;margin-top:7px;letter-spacing:0;font-weight:760}
+  .avatar{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#6f89cf,#64ae9c);color:white;font-weight:780;box-shadow:0 13px 26px -15px rgba(43,69,127,.7);position:relative}
+  .avatar::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:#e58b55;border:2px solid #f6f8fb}
+  .capture{padding:18px;border-radius:24px;position:relative;overflow:hidden}
+  .capture::after{content:"";position:absolute;right:-34px;top:-45px;width:126px;height:126px;border-radius:38% 62% 54% 46%;background:linear-gradient(140deg,rgba(82,119,216,.15),rgba(66,158,137,.12));filter:blur(4px);transform:rotate(18deg);pointer-events:none}
+  .capture-label{font-size:11px;font-weight:700;color:var(--blue)}
+  .capture-prompt{margin-top:11px;font-size:17px;font-weight:680;line-height:1.45;max-width:250px}
+  .capture-actions{display:flex;align-items:center;gap:7px;margin-top:17px;position:relative;z-index:2}
+  .capture-actions button{width:40px;height:40px;border:1px solid rgba(255,255,255,.82);border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.55);color:var(--ink-2);transition:transform .18s var(--ease),background .2s}
+  .capture-actions button:active{transform:scale(.9);background:rgba(255,255,255,.9)}
+  .capture-actions svg{width:18px;height:18px;stroke-width:1.8}
+  .capture-main{margin-left:auto!important;width:auto!important;padding:0 15px!important;display:flex!important;gap:7px!important;background:#243257!important;color:var(--white)!important;border-color:transparent!important;font-size:12px;font-weight:690;box-shadow:0 10px 22px -14px #17203d}
+  .section-head{display:flex;align-items:end;justify-content:space-between;margin:24px 3px 11px}
+  .section-head h2{font-size:16px;font-weight:740}.section-head span,.section-head button{font-size:11px;color:var(--muted)}
+  .focus-card{border-radius:22px;padding:16px;position:relative;overflow:hidden}
+  .focus-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .soft-tag{display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:0 9px;border-radius:999px;background:rgba(61,111,231,.10);color:var(--blue-2);font-size:10px;font-weight:700;white-space:nowrap}
+  .soft-tag.mint{background:rgba(37,141,115,.10);color:#21745f}.soft-tag.coral{background:rgba(212,103,95,.11);color:#a64b47}.soft-tag.violet{background:rgba(118,92,184,.11);color:#624b9b}
+  .focus-time{font-size:10px;color:var(--muted)}
+  .focus-card h3{font-size:17px;line-height:1.45;margin-top:12px}
+  .focus-card p{font-size:12px;line-height:1.65;color:var(--ink-2);margin-top:6px}
+  .focus-footer{display:flex;align-items:center;gap:8px;margin-top:15px}
+  .mini-stack{display:flex}.mini-stack i{width:23px;height:23px;border-radius:8px;border:2px solid rgba(255,255,255,.9);margin-right:-7px;display:grid;place-items:center;color:white;font-size:9px;font-style:normal}.mini-stack i:nth-child(1){background:#6d83c9}.mini-stack i:nth-child(2){background:#57a995}.mini-stack i:nth-child(3){background:#d68d63}
+  .focus-footer span{font-size:10px;color:var(--muted);margin-left:3px}.open-link{margin-left:auto;display:flex;align-items:center;gap:3px;font-size:11px;color:var(--blue);font-weight:670;min-height:38px;padding:0 2px 0 10px}.open-link svg{width:16px}
+  .note-row{display:grid;grid-template-columns:44px minmax(0,1fr) 28px;gap:11px;align-items:center;padding:12px 13px;border-radius:18px;margin-bottom:8px}
+  .note-thumb{width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#d9e3f5,#e8dff2);display:grid;place-items:center;color:#536ba9}.note-thumb svg{width:21px;height:21px}
+  .note-row h4{font-size:13px;font-weight:700}.note-row p{font-size:10.5px;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.note-row>svg{width:17px;color:var(--faint)}
+  .tabbar{position:absolute;z-index:50;left:17px;right:17px;bottom:calc(env(safe-area-inset-bottom) + 14px);height:68px;border:1px solid rgba(255,255,255,.88);border-radius:24px;background:rgba(255,255,255,.69);box-shadow:0 20px 48px -25px rgba(42,48,78,.6),inset 0 1px rgba(255,255,255,.96);backdrop-filter:blur(26px) saturate(165%);display:flex;align-items:center;justify-content:space-around;padding:0 7px}
+  .tab{width:52px;height:52px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:9px;font-weight:650;transition:transform .18s var(--ease),background .24s,color .24s}
+  .tab svg{width:19px;height:19px;stroke-width:1.8}.tab.active{color:var(--blue-2);background:rgba(255,255,255,.72);box-shadow:0 7px 18px -15px #31509c}.tab:active{transform:scale(.86)}
+  .fab{width:54px;height:54px;border-radius:19px;background:#243257;color:var(--white);display:grid;place-items:center;box-shadow:0 13px 25px -12px rgba(29,40,75,.8),inset 0 1px rgba(255,255,255,.22);transition:transform .2s var(--spring)}
+  .fab svg{width:22px;height:22px}.fab:active{transform:scale(.86) rotate(7deg)}
+  .composer-scroll{padding-top:4px}
+  .source-chip{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:16px;margin-bottom:10px}
+  .source-preview{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#dfeaff,#e8f5ef);color:var(--blue)}
+  .source-chip b{display:block;font-size:12px}.source-chip span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.source-chip>svg{margin-left:auto;width:17px;color:var(--faint)}
+  .editor{min-height:310px;border-radius:26px;padding:20px;display:flex;flex-direction:column}
+  .editor input{border:0;background:transparent;font-size:20px;font-weight:740;outline:0;letter-spacing:0}
+  .editor textarea{flex:1;min-height:170px;border:0;background:transparent;resize:none;outline:0;margin-top:18px;font-size:16px;line-height:1.85;color:var(--ink-2)}
+  .editor-meta{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:10px;padding-top:12px;border-top:1px solid var(--line)}
+  .auto-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 9px}.auto-copy{display:flex;gap:10px;align-items:center}.auto-ic{width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(61,111,231,.10);color:var(--blue)}.auto-copy b{display:block;font-size:13px}.auto-copy span{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+  .switch{width:46px;height:28px;padding:3px;border-radius:999px;background:#c8ccd7;transition:background .24s}.switch i{display:block;width:22px;height:22px;border-radius:50%;background:var(--white);box-shadow:0 3px 9px -4px #2b3148;transition:transform .3s var(--spring)}.switch.on{background:var(--mint)}.switch.on i{transform:translateX(18px)}
+  .bottom-action{position:absolute;z-index:45;left:17px;right:17px;bottom:calc(env(safe-area-inset-bottom) + 14px);height:58px;border-radius:19px;background:#243257;color:var(--white);display:flex;align-items:center;justify-content:center;gap:9px;font-size:14px;font-weight:720;box-shadow:0 18px 30px -16px rgba(30,42,78,.8);transition:transform .18s var(--ease)}
+  .bottom-action:active{transform:scale(.97)}.bottom-action svg{width:19px;height:19px}
+  .detail-head{padding:7px 20px 16px}.detail-head .stamp{font-size:10px;color:var(--muted)}.detail-head h1{font-size:24px;line-height:1.3;margin-top:7px;font-weight:770;letter-spacing:0}
+  .detail-actions{display:flex;gap:4px}
+  .original-card{border-radius:20px;padding:14px 15px;margin-bottom:10px}
+  .original-top{display:flex;align-items:center;justify-content:space-between}.original-top span{font-size:10px;color:var(--muted)}.original-top button{font-size:10px;color:var(--blue);min-height:34px;padding:0 5px}.original-card p{font-size:13px;line-height:1.7;color:var(--ink-2);margin-top:4px}
+  .run-strip{position:relative;overflow:hidden;border-radius:20px;padding:13px 14px;margin-bottom:11px;display:grid;grid-template-columns:34px minmax(0,1fr) 20px;gap:10px;align-items:center}
+  .run-strip::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-120%);animation:shimmer 2.3s infinite}
+  @keyframes shimmer{to{transform:translateX(120%)}}
+  .run-orbit{width:34px;height:34px;border-radius:13px;position:relative;display:grid;place-items:center;background:rgba(61,111,231,.10);color:var(--blue)}.run-orbit::after{content:"";position:absolute;inset:-3px;border-radius:15px;border:1.5px solid rgba(61,111,231,.28);border-top-color:var(--blue);animation:spin 1.2s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .run-strip.done .run-orbit::after{animation:none;border-color:rgba(37,141,115,.36)}.run-strip.done .run-orbit{color:var(--mint);background:rgba(37,141,115,.10)}.run-strip.done::after{display:none}
+  .run-copy{min-width:0;position:relative;z-index:2}.run-copy b{display:block;font-size:12.5px}.run-copy span{display:block;font-size:10px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.run-strip>svg{width:17px;color:var(--faint);position:relative;z-index:2}
+  .result-wrap{opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .55s var(--ease)}.result-wrap.ready{opacity:1;transform:none}
+  .answer{border-radius:24px;padding:18px;margin-bottom:11px;position:relative;overflow:hidden}.answer::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(61,111,231,.09),transparent 44%,rgba(37,141,115,.08));pointer-events:none}.answer-label{display:flex;align-items:center;gap:7px;color:var(--blue-2);font-size:10px;font-weight:730;position:relative}.answer h2{position:relative;font-size:19px;line-height:1.45;margin-top:11px;letter-spacing:0}.answer>p{position:relative;font-size:12px;line-height:1.7;color:var(--ink-2);margin-top:7px}.contact{position:relative;margin-top:15px;border:1px solid rgba(255,255,255,.8);border-radius:17px;background:rgba(255,255,255,.54);padding:12px;display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center}.contact-ico{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#e1ecff,#dff3ec);display:grid;place-items:center;color:var(--mint)}.contact b{display:block;font-size:12.5px}.contact span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.contact .call{width:40px;height:40px;border-radius:14px;background:#243257;color:white;display:grid;place-items:center}.contact .call:active{transform:scale(.88)}.contact .call svg{width:17px}
+  .why{margin-top:10px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);position:relative}.why svg{width:14px;color:var(--violet)}
+  .stream-text{position:relative;min-height:43px}.cursor{display:inline-block;width:2px;height:1em;background:var(--blue);margin-left:2px;vertical-align:-2px;animation:blink .8s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+  .task-card{border-radius:22px;padding:16px;margin-bottom:11px}.task-card-head{display:flex;align-items:center;justify-content:space-between}.task-card-head h3{font-size:15px}.task-card-head span{font-size:10px;color:var(--muted)}
+  .task-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:13px 0;border-bottom:1px solid var(--line)}.task-row:last-of-type{border-bottom:0}.check{width:22px;height:22px;border-radius:8px;border:1.5px solid #aeb4c4;display:grid;place-items:center;margin-top:1px;transition:background .25s,border .25s,transform .18s}.check.active{background:#243257;border-color:#243257;color:var(--white)}.check:active{transform:scale(.82)}.check svg{width:14px;height:14px;opacity:0}.check.active svg{opacity:1}.task-row b{display:block;font-size:12.5px}.task-row p{font-size:10px;color:var(--muted);line-height:1.45;margin-top:4px}.task-kind{font-size:9px;color:var(--blue);padding-top:4px;white-space:nowrap}.task-kind.idea{color:var(--amber)}
+  .suggestion{display:flex;align-items:center;gap:9px;padding:11px 12px;margin-top:7px;border-radius:15px;background:rgba(242,238,226,.62);border:1px solid rgba(255,255,255,.76)}.suggestion>svg{width:17px;color:var(--amber)}.suggestion span{font-size:10.5px;line-height:1.45;flex:1;color:var(--ink-2)}.suggestion button{min-height:34px;padding:0 8px;color:var(--amber);font-size:10px;font-weight:700}
+  .apply-btn{width:100%;height:48px;border-radius:16px;background:#243257;color:var(--white);margin-top:12px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;font-weight:710;transition:transform .18s}.apply-btn:active{transform:scale(.97)}.apply-btn svg{width:17px}
+  .context-bar{border-radius:20px;padding:13px 14px;margin-bottom:11px;display:flex;align-items:center;gap:11px}.context-icons{display:flex}.context-icons i{width:29px;height:29px;margin-right:-7px;border:2px solid rgba(255,255,255,.9);border-radius:10px;display:grid;place-items:center;font-style:normal}.context-icons i:nth-child(1){background:#e6efff;color:#4d67a7}.context-icons i:nth-child(2){background:#e3f2ed;color:#337965}.context-icons i:nth-child(3){background:#f7e8e3;color:#a75d4d}.context-copy{min-width:0;flex:1}.context-copy b{display:block;font-size:12px}.context-copy span{display:block;font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.context-bar>svg{width:17px;color:var(--faint)}
+  .detail-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}.tool-btn{min-height:70px;border-radius:18px;padding:10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;color:var(--ink-2);font-size:10px}.tool-btn svg{width:19px;height:19px;color:var(--blue)}.tool-btn:nth-child(2) svg{color:var(--mint)}.tool-btn:nth-child(3) svg{color:var(--violet)}.tool-btn:active{transform:scale(.96)}
+  .topics-head{padding:13px 3px 14px}.topics-head h1{font-size:27px}.topics-head p{font-size:11px;color:var(--muted);margin-top:6px}
+  .topic-card{border-radius:23px;padding:17px;margin-bottom:11px;position:relative;overflow:hidden}.topic-card.current{background:linear-gradient(140deg,rgba(255,255,255,.76),rgba(224,237,252,.58),rgba(228,244,238,.52))}.topic-meta{display:flex;align-items:center;justify-content:space-between}.topic-meta span{font-size:10px;color:var(--muted)}.topic-card h3{font-size:17px;margin-top:12px}.topic-card p{font-size:11px;line-height:1.62;color:var(--ink-2);margin-top:7px}.topic-stats{display:flex;gap:13px;margin-top:15px}.topic-stats span{font-size:10px;color:var(--muted)}.topic-stats b{color:var(--ink);font-size:12px;margin-right:3px}
+  .topic-visual{display:flex;justify-content:flex-end;margin-top:12px}.topic-visual img{display:block;width:118px;height:auto;filter:drop-shadow(0 12px 18px rgba(63,71,104,.12))}
+  .overlay{position:absolute;z-index:80;inset:0;background:rgba(43,47,66,.28);backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .32s ease}.overlay.open{opacity:1;pointer-events:auto}
+  .sheet{position:absolute;z-index:90;left:0;right:0;bottom:0;max-height:84%;display:flex;flex-direction:column;border-radius:30px 30px 0 0;background:rgba(247,249,252,.89);border:1px solid rgba(255,255,255,.92);box-shadow:0 -28px 80px -35px rgba(32,38,67,.62),inset 0 1px rgba(255,255,255,.95);backdrop-filter:blur(30px) saturate(160%);transform:translateY(105%);visibility:hidden;pointer-events:none;transition:transform .48s var(--ease),visibility 0s linear .48s;padding-bottom:calc(env(safe-area-inset-bottom) + 16px)}
+  .sheet.open{transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}.grab{width:38px;height:4px;border-radius:999px;background:#c9ccd6;margin:9px auto 2px;flex:none}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:12px 19px 10px;flex:none}.sheet-head h2{font-size:18px}.sheet-head button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}.sheet-head button:active{background:rgba(255,255,255,.7);transform:scale(.9)}.sheet-scroll{overflow-y:auto;scrollbar-width:none;padding:0 18px 8px}.sheet-scroll::-webkit-scrollbar{display:none}
+  .agent-summary{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 13px}.agent-summary span{font-size:10px;color:var(--muted)}.stop-btn{min-height:36px;padding:0 11px;border-radius:12px;background:rgba(184,61,80,.09);color:var(--danger);font-size:10px;font-weight:700}
+  .agent-step{display:grid;grid-template-columns:31px minmax(0,1fr) auto;gap:10px;position:relative;padding:8px 4px 16px}.agent-step:not(:last-child)::after{content:"";position:absolute;left:18px;top:40px;bottom:-1px;border-left:1px solid rgba(79,82,103,.15)}.agent-ico{width:31px;height:31px;border-radius:12px;display:grid;place-items:center;background:rgba(61,111,231,.10);color:var(--blue);position:relative;z-index:2}.agent-ico svg{width:16px}.agent-step b{display:block;font-size:12px}.agent-step p{font-size:10px;color:var(--muted);line-height:1.5;margin-top:4px}.agent-time{font-size:9px;color:var(--muted);padding-top:4px}.agent-step.waiting{opacity:.48}.agent-step.running .agent-ico::after{content:"";position:absolute;inset:-3px;border:1px solid var(--blue);border-top-color:transparent;border-radius:14px;animation:spin 1s linear infinite}.agent-step.success .agent-ico{background:rgba(37,141,115,.10);color:var(--mint)}
+  .apply-mode{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin:3px 0 12px}.mode{height:42px;border-radius:14px;background:rgba(255,255,255,.72);border:1px solid rgba(79,82,103,.12);font-size:10.5px;color:var(--ink-2)}.mode.active{background:#243257;color:var(--white);border-color:#243257}
+  .choice{display:grid;grid-template-columns:25px minmax(0,1fr);gap:10px;padding:13px 12px;border-radius:17px;margin-bottom:8px;background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.78)}.choice .check{margin-top:0}.choice b{display:block;font-size:12px}.choice p{font-size:10px;line-height:1.55;color:var(--muted);margin-top:5px}.choice em{font-style:normal;color:var(--blue);font-size:9px;margin-left:5px}.sheet-primary{width:100%;height:50px;border-radius:16px;background:#243257;color:var(--white);display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;font-weight:710;margin-top:11px}.sheet-primary:active{transform:scale(.98)}
+  .context-tabs{display:flex;gap:5px;padding:2px;border-radius:15px;background:rgba(229,233,241,.65);margin:2px 0 13px}.context-tabs button{flex:1;height:36px;border-radius:12px;color:var(--muted);font-size:10.5px}.context-tabs button.active{background:rgba(255,255,255,.9);color:var(--ink);box-shadow:0 5px 16px -13px #252d4a}
+  .context-pane{display:none}.context-pane.active{display:block;animation:fade-up .35s var(--ease)}@keyframes fade-up{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .related-item{display:grid;grid-template-columns:43px minmax(0,1fr);gap:11px;padding:12px;border-radius:17px;margin-bottom:8px;background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.78)}.related-item .note-thumb{width:43px;height:43px}.related-item b{font-size:12px}.related-item p{font-size:10px;color:var(--muted);line-height:1.5;margin-top:4px}.reason{display:inline-flex;margin-top:7px;padding:4px 7px;border-radius:7px;background:rgba(118,92,184,.09);color:#624b9b;font-size:9px}
+  .info-block{padding:13px;border-radius:17px;background:rgba(255,255,255,.57);border:1px solid rgba(255,255,255,.8);margin-bottom:8px}.info-block header{display:flex;align-items:center;justify-content:space-between}.info-block h4{font-size:12px}.info-block header span{font-size:9px;color:var(--mint)}.info-block p{font-size:11px;color:var(--ink-2);margin-top:8px}.info-block small{display:block;font-size:9px;color:var(--muted);margin-top:7px}
+  .service-card{overflow:hidden;border-radius:20px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.84)}.service-cover{height:116px;position:relative;overflow:hidden;background:linear-gradient(135deg,#cbdcf3,#d8eee7 55%,#f4ddd2)}.service-cover::before,.service-cover::after{content:"";position:absolute;background:rgba(255,255,255,.78);box-shadow:0 8px 20px -13px #273351}.service-cover::before{left:45px;bottom:17px;width:118px;height:64px;border-radius:10px;transform:rotate(-4deg)}.service-cover::after{right:44px;bottom:18px;width:72px;height:80px;border-radius:9px;transform:rotate(7deg)}.service-cover span{position:absolute;z-index:2;left:16px;top:15px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.75);font-size:9px;color:var(--ink-2)}.service-body{padding:14px}.service-body h3{font-size:15px}.service-body p{font-size:10px;color:var(--muted);line-height:1.55;margin-top:6px}.service-score{display:flex;gap:8px;margin-top:11px}.service-score span{padding:5px 7px;border-radius:8px;background:rgba(37,141,115,.08);font-size:9px;color:var(--mint)}
+  .toast{position:absolute;z-index:110;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);max-width:calc(100% - 40px);padding:11px 15px;border-radius:14px;background:rgba(30,35,55,.9);color:var(--white);box-shadow:0 15px 34px -18px rgba(20,25,45,.7);backdrop-filter:blur(14px);font-size:11px;line-height:1.45;white-space:nowrap;opacity:0;pointer-events:none;transform:translate(-50%,14px);transition:opacity .25s,transform .36s var(--ease)}.toast.show{opacity:1;transform:translate(-50%,0)}
+  .loading-screen{position:absolute;z-index:120;inset:0;display:none;place-items:center;background:rgba(239,244,248,.72);backdrop-filter:blur(22px)}.loading-screen.show{display:grid}.loading-core{width:180px;text-align:center}.agent-cloud{height:76px;position:relative}.agent-cloud i{position:absolute;width:38px;height:38px;border-radius:14px;display:grid;place-items:center;color:white;font-style:normal;box-shadow:0 10px 25px -13px #243257;animation:float 1.8s ease-in-out infinite}.agent-cloud i:nth-child(1){left:28px;top:25px;background:#5678c7}.agent-cloud i:nth-child(2){left:71px;top:4px;background:#4da087;animation-delay:.12s}.agent-cloud i:nth-child(3){left:114px;top:27px;background:#cc755d;animation-delay:.24s}@keyframes float{50%{transform:translateY(-7px)}}.loading-core b{font-size:15px}.loading-core p{font-size:10px;color:var(--muted);line-height:1.6;margin-top:7px}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.view.active,.result-wrap.ready{transform:none}.run-strip::after{display:none}}
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="AI备忘录自动整理原型">
+    <div class="status"><span id="clock">9:41</span><span class="status-icons"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"></span><span class="battery"></span></span></div>
+
+    <div class="views">
+      <section class="view active" id="view-home" data-view="home">
+        <div class="scroll">
+          <header class="home-head">
+            <div><div class="date" id="todayLabel">9 月 16 日 · 周三</div><h1>现在想到的，<br>先放在这里。</h1></div>
+            <button class="avatar" data-toast="3 条内容已在后台准备">夏</button>
+          </header>
+          <section class="capture glass" id="openComposer" aria-label="新建记录">
+            <span class="capture-label">随手记</span>
+            <div class="capture-prompt">输入、说话或放一张截图，我会先替你收好。</div>
+            <div class="capture-actions">
+              <button aria-label="拍照" data-capture-shortcut="camera"><i data-lucide="camera"></i></button>
+              <button aria-label="添加图片" data-capture-shortcut="image"><i data-lucide="image"></i></button>
+              <button aria-label="语音记录" data-capture-shortcut="voice"><i data-lucide="mic"></i></button>
+              <button class="capture-main"><i data-lucide="pen-line"></i><span>写一条</span></button>
+            </div>
+          </section>
+
+          <div class="section-head"><h2>接下来</h2><span>已为你准备</span></div>
+          <button class="focus-card glass" id="openExistingDetail">
+            <div class="focus-meta"><span class="soft-tag mint"><i data-lucide="sparkles"></i> 已准备</span><span class="focus-time">明天 · 09:00</span></div>
+            <h3>周末搬家安排</h3>
+            <p>找到了上次保存的搬家公司联系方式，3 件待办已经整理好。</p>
+            <div class="focus-footer"><span class="mini-stack"><i>记</i><i>事</i><i>查</i></span><span>4 个步骤已完成</span><span class="open-link">打开<i data-lucide="chevron-right"></i></span></div>
+          </button>
+
+          <div class="section-head"><h2>最近记录</h2><button data-toast="已显示全部记录">查看全部</button></div>
+          <button class="note-row glass" data-toast="已打开：租房交接清单"><span class="note-thumb"><i data-lucide="key-round"></i></span><span><h4>租房交接清单</h4><p>水电读数、钥匙、押金凭证...</p></span><i data-lucide="chevron-right"></i></button>
+          <button class="note-row glass" data-toast="已打开：火锅店收藏"><span class="note-thumb"><i data-lucide="map-pin"></i></span><span><h4>周末想去的火锅店</h4><p>女朋友发来的两家店，等位时间...</p></span><i data-lucide="chevron-right"></i></button>
+        </div>
+        <nav class="tabbar" aria-label="主导航">
+          <button class="tab active" data-tab="home"><i data-lucide="sun"></i><span>今天</span></button>
+          <button class="tab" data-tab="records"><i data-lucide="notebook-tabs"></i><span>记录</span></button>
+          <button class="fab" id="fabCapture" aria-label="新建记录"><i data-lucide="plus"></i></button>
+          <button class="tab" data-tab="topics"><i data-lucide="layers-3"></i><span>主题</span></button>
+          <button class="tab" data-tab="me"><i data-lucide="user-round"></i><span>我的</span></button>
+        </nav>
+      </section>
+
+      <section class="view" id="view-composer" data-view="composer">
+        <header class="topbar"><button class="icon-btn" data-back="home" aria-label="关闭"><i data-lucide="x"></i></button><div class="topbar-title">新记录</div><button class="icon-btn" data-toast="草稿已保存" aria-label="更多"><i data-lucide="more-horizontal"></i></button></header>
+        <div class="scroll composer-scroll">
+          <div class="source-chip glass"><span class="source-preview"><i data-lucide="scan-text"></i></span><span><b>微信截图文字</b><span>已保留原图 · 可随时校对</span></span><i data-lucide="chevron-right"></i></div>
+          <div class="editor glass">
+            <input id="noteTitle" value="周末搬家" aria-label="标题">
+            <textarea id="noteBody" aria-label="记录正文">周末搬家，联系搬家公司，买拖把和地垫，仓鼠换窝。后天晚上和女朋友吃火锅。</textarea>
+            <div class="editor-meta"><span>实时保存</span><span id="charCount">45 字</span></div>
+          </div>
+          <div class="auto-row"><div class="auto-copy"><span class="auto-ic"><i data-lucide="sparkles"></i></span><span><b>保存后自动整理</b><span>原文不会被改动</span></span></div><button class="switch on" id="autoSwitch" aria-label="自动整理开关" aria-pressed="true"><i></i></button></div>
+        </div>
+        <button class="bottom-action" id="saveNote"><i data-lucide="check"></i><span>保存记录</span></button>
+      </section>
+
+      <section class="view" id="view-detail" data-view="detail">
+        <header class="topbar"><button class="icon-btn" id="detailBack" aria-label="返回"><i data-lucide="chevron-left"></i></button><div class="topbar-title">记录</div><div class="detail-actions"><button class="icon-btn" id="redoOrganize" aria-label="重新整理"><i data-lucide="refresh-cw"></i></button></div></header>
+        <div class="scroll" id="detailScroll">
+          <header class="detail-head"><span class="stamp">今天 18:26 · 自动保存</span><h1>周末搬家安排</h1></header>
+          <article class="original-card glass"><div class="original-top"><span>你的原记录</span><button id="editOriginal">编辑</button></div><p id="originalText">周末搬家，联系搬家公司，买拖把和地垫，仓鼠换窝。后天晚上和女朋友吃火锅。</p></article>
+          <button class="run-strip glass" id="runStrip"><span class="run-orbit"><i data-lucide="sparkles"></i></span><span class="run-copy"><b id="runTitle">正在理解这条记录</b><span id="runSubtitle">先识别行动，再查找真正有用的旧信息</span></span><i data-lucide="chevron-right"></i></button>
+
+          <div class="result-wrap" id="resultWrap">
+            <article class="answer glass">
+              <div class="answer-label"><i data-lucide="sparkles"></i><span>最值得先看</span></div>
+              <h2>先联系之前用过的搬家公司</h2>
+              <p class="stream-text"><span id="streamText"></span><span class="cursor" id="streamCursor"></span></p>
+              <div class="contact"><span class="contact-ico"><i data-lucide="truck"></i></span><span><b>安达搬家公司 · 王师傅</b><span>130 6846 541 · 来自 6 月 28 日记录</span></span><button class="call" data-toast="已复制电话 130 6846 541" aria-label="复制电话"><i data-lucide="copy"></i></button></div>
+              <div class="why"><i data-lucide="link-2"></i><span>与你保存的“搬家公司联系方式”直接相关</span></div>
+            </article>
+
+            <article class="task-card glass">
+              <div class="task-card-head"><h3>这条记录里的行动</h3><span>3 项</span></div>
+              <div class="task-row"><button class="check active" aria-label="确认搬家公司时间"><i data-lucide="check"></i></button><span><b>确认搬家公司时间</b><p>建议明晚前确认，避免周末档期被占</p></span><span class="task-kind">原文提取</span></div>
+              <div class="task-row"><button class="check active" aria-label="买拖把和地垫"><i data-lucide="check"></i></button><span><b>买拖把和地垫</b><p>未设置时间</p></span><span class="task-kind">原文提取</span></div>
+              <div class="task-row"><button class="check active" aria-label="给仓鼠换窝"><i data-lucide="check"></i></button><span><b>给仓鼠换窝</b><p>搬家当天完成</p></span><span class="task-kind">原文提取</span></div>
+              <div class="suggestion"><i data-lucide="cloud-sun"></i><span>周末可能有雨，出发前再看一次天气即可。</span><button id="addWeatherTask">加入待办</button></div>
+              <button class="apply-btn" id="openApply"><i data-lucide="check-check"></i><span>采纳整理结果</span></button>
+            </article>
+
+            <button class="context-bar glass" id="openContext"><span class="context-icons"><i><i data-lucide="notebook-tabs"></i></i><i><i data-lucide="tag"></i></i><i><i data-lucide="map-pinned"></i></i></span><span class="context-copy"><b>还有 5 条相关记录</b><span>联系人、交接清单与 1 个服务建议</span></span><i data-lucide="chevron-right"></i></button>
+
+            <div class="detail-tools">
+              <button class="tool-btn glass" data-toast="已加入“周末搬家”主题"><i data-lucide="layers-3"></i><span>搬家主题</span></button>
+              <button class="tool-btn glass" data-toast="语音讨论将在原记录旁保存"><i data-lucide="audio-lines"></i><span>语音讨论</span></button>
+              <button class="tool-btn glass" id="openAsk"><i data-lucide="message-circle-more"></i><span>继续问 AI</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-topics" data-view="topics">
+        <div class="scroll">
+          <header class="topics-head"><h1>主题</h1><p>相同事情的记录，会在这里持续汇集。</p></header>
+          <button class="topic-card current glass" data-toast="已打开周末搬家主题">
+            <div class="topic-meta"><span class="soft-tag mint"><i data-lucide="refresh-cw"></i> 持续更新</span><span>刚刚加入 1 条</span></div>
+            <h3>周末搬家</h3><p>待办、联系人、采购清单和租房交接信息都在这里。原记录保持不变。</p>
+            <div class="topic-stats"><span><b>7</b>条记录</span><span><b>3</b>件待办</span><span><b>2</b>个来源</span></div>
+            <div class="topic-visual"><img src="assets/theme-preview.png" alt="主题内容预览"></div>
+          </button>
+          <button class="topic-card glass" data-toast="已打开产品研究主题"><div class="topic-meta"><span class="soft-tag violet">自动主题</span><span>昨天更新</span></div><h3>最近关注的新产品</h3><p>保存过的发布截图、对比资料和稍后了解的内容。</p><div class="topic-stats"><span><b>12</b>条记录</span><span><b>2</b>份简报</span></div></button>
+        </div>
+        <nav class="tabbar" aria-label="主导航">
+          <button class="tab" data-tab="home"><i data-lucide="sun"></i><span>今天</span></button>
+          <button class="tab" data-tab="records"><i data-lucide="notebook-tabs"></i><span>记录</span></button>
+          <button class="fab" data-capture aria-label="新建记录"><i data-lucide="plus"></i></button>
+          <button class="tab active" data-tab="topics"><i data-lucide="layers-3"></i><span>主题</span></button>
+          <button class="tab" data-tab="me"><i data-lucide="user-round"></i><span>我的</span></button>
+        </nav>
+      </section>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <section class="sheet" id="agentSheet" aria-modal="true" role="dialog" aria-label="整理过程" aria-hidden="true">
+      <div class="grab"></div><header class="sheet-head"><h2>整理过程</h2><button data-close-sheet aria-label="关闭"><i data-lucide="x"></i></button></header>
+      <div class="sheet-scroll">
+        <div class="agent-summary"><span id="agentSummary">4 个步骤 · 正在运行</span><button class="stop-btn" id="stopAgents">停止整理</button></div>
+        <div id="agentSteps">
+          <div class="agent-step running"><span class="agent-ico"><i data-lucide="brain-circuit"></i></span><span><b>理解记录</b><p>识别行动、时间和保留原意</p></span><span class="agent-time">进行中</span></div>
+          <div class="agent-step waiting"><span class="agent-ico"><i data-lucide="list-checks"></i></span><span><b>整理待办</b><p>只提取原文里明确要做的事</p></span><span class="agent-time">等待</span></div>
+          <div class="agent-step waiting"><span class="agent-ico"><i data-lucide="network"></i></span><span><b>关联记忆</b><p>寻找当前真正有帮助的旧记录</p></span><span class="agent-time">等待</span></div>
+          <div class="agent-step waiting"><span class="agent-ico"><i data-lucide="route"></i></span><span><b>准备行动信息</b><p>补充必要资料，省略泛泛建议</p></span><span class="agent-time">等待</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet" id="applySheet" aria-modal="true" role="dialog" aria-label="采纳整理结果" aria-hidden="true">
+      <div class="grab"></div><header class="sheet-head"><h2>采纳整理结果</h2><button data-close-sheet aria-label="关闭"><i data-lucide="x"></i></button></header>
+      <div class="sheet-scroll">
+        <div class="apply-mode"><button class="mode active" data-mode="append">保留原文并追加</button><button class="mode" data-mode="replace">对照后替换</button></div>
+        <div class="choice"><button class="check active"><i data-lucide="check"></i></button><span><b>标题 <em>AI 建议</em></b><p>周末搬家安排</p></span></div>
+        <div class="choice"><button class="check active"><i data-lucide="check"></i></button><span><b>待办 <em>来自原文</em></b><p>确认搬家公司、买拖把和地垫、给仓鼠换窝</p></span></div>
+        <div class="choice"><button class="check"><i data-lucide="check"></i></button><span><b>整理正文 <em>AI 建议</em></b><p>追加一份分组后的搬家清单，不改动你的原句。</p></span></div>
+        <button class="sheet-primary" id="applySelected"><i data-lucide="check-check"></i><span>应用已选 2 项</span></button>
+      </div>
+    </section>
+
+    <section class="sheet" id="contextSheet" aria-modal="true" role="dialog" aria-label="补充信息" aria-hidden="true">
+      <div class="grab"></div><header class="sheet-head"><h2>补充信息</h2><button data-close-sheet aria-label="关闭"><i data-lucide="x"></i></button></header>
+      <div class="sheet-scroll">
+        <div class="context-tabs"><button class="active" data-context-tab="related">关联记录</button><button data-context-tab="info">信息归类</button><button data-context-tab="service">服务建议</button></div>
+        <div class="context-pane active" data-context-pane="related">
+          <div class="related-item"><span class="note-thumb"><i data-lucide="phone"></i></span><span><b>搬家公司联系方式</b><p>王师傅 · 130 6846 541 · 6 月 28 日</p><span class="reason">同一家公司，当前可以直接使用</span></span></div>
+          <div class="related-item"><span class="note-thumb"><i data-lucide="key-round"></i></span><span><b>租房退租交接清单</b><p>水电读数、押金凭证和钥匙数量</p><span class="reason">搬家当天可能需要</span></span></div>
+          <div class="related-item"><span class="note-thumb"><i data-lucide="paw-print"></i></span><span><b>仓鼠换窝注意事项</b><p>提前保留旧垫料，减少环境变化</p><span class="reason">对应原文里的“仓鼠换窝”</span></span></div>
+          <button class="sheet-primary" id="mergeTheme"><i data-lucide="layers-3"></i><span>加入“周末搬家”主题</span></button>
+        </div>
+        <div class="context-pane" data-context-pane="info">
+          <div class="info-block"><header><h4>联系人</h4><span>已识别</span></header><p>王师傅 · 130 6846 541</p><small>来源：搬家公司联系方式 · 6 月 28 日</small></div>
+          <div class="info-block"><header><h4>采购清单</h4><span>来自原文</span></header><p>拖把、地垫</p><small>不会自动扩充为商品推荐</small></div>
+          <div class="info-block"><header><h4>时间</h4><span>需要确认</span></header><p>周末搬家 · 后天晚上吃火锅</p><small>只有在设置提醒时才会追问具体时间</small></div>
+        </div>
+        <div class="context-pane" data-context-pane="service">
+          <article class="service-card"><div class="service-cover"><span>基于地址与周末时间</span></div><div class="service-body"><span class="soft-tag coral">服务参考</span><h3>搬家车辆与纸箱准备</h3><p>根据两居室和同城搬家场景整理。没有实时价格与库存时，不会显示伪造报价。</p><div class="service-score"><span>3 个核对问题</span><span>2 个来源</span></div><button class="sheet-primary" data-toast="已打开服务准备清单">查看准备清单</button></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet" id="askSheet" aria-modal="true" role="dialog" aria-label="继续问AI" aria-hidden="true">
+      <div class="grab"></div><header class="sheet-head"><h2>继续问 AI</h2><button data-close-sheet aria-label="关闭"><i data-lucide="x"></i></button></header>
+      <div class="sheet-scroll"><div class="choice"><span class="agent-ico"><i data-lucide="message-circle-more"></i></span><span><b>你可以直接问</b><p>“帮我列一个搬家当天的时间表”，回答会留在这条记录旁，不自动写回原文。</p></span></div><button class="sheet-primary" id="simulateAsk"><i data-lucide="send"></i><span>生成当天时间表</span></button></div>
+    </section>
+
+    <div class="toast" id="toast" role="status"></div>
+    <div class="loading-screen" id="loadingScreen"><div class="loading-core"><div class="agent-cloud"><i>记</i><i>理</i><i>查</i></div><b>正在重新整理</b><p>保留原记录，只更新还没有采纳的结果。</p></div></div>
+  </main>
+  <script src="assets/lucide.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

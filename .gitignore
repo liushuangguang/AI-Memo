@@ -1,0 +1,42 @@
+# Dependencies
+**/node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+**/dist/
+**/build/
+**/target/
+**/out/
+**/.next/
+**/.vinext/
+*.jar
+*.war
+*.apk
+*.aab
+*.so
+*.a
+*.dill
+*.exe
+
+# Temporary files, caches, and backups
+tmp/
+temp/
+**/.cache/
+**/.dart_tool/
+**/.gradle/
+*.log
+.DS_Store
+Thumbs.db
+ainote-coding-copy/
+ainote-product/mirrors/
+ainote-product/artifacts/
+**/.git_subrepo/
+
+# Local tools & downloads
+.finesse/
+.firecrawl/
+.playwright-cli/
+.rustup-download/
+.toolchains/
+.codex-review-investor-notes/

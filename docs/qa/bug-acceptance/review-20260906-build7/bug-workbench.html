@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="bug-workbench-version" content="0.1.5+7 测试版待验收">
+  <meta name="bug-workbench-catalog-id" content="9303d6c45c90ec82f6d625fbdaba52050faf1f55571b0c6fb87f795fe1f87c76">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' http://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>验收bug · AI备忘录</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --background: light-dark(rgb(247 248 251), rgb(18 19 23));
+      --foreground: light-dark(rgb(30 32 38), rgb(243 244 248));
+      --card: light-dark(rgb(255 255 255), rgb(28 30 36));
+      --card-foreground: var(--foreground);
+      --muted: light-dark(rgb(238 240 245), rgb(38 40 48));
+      --muted-foreground: light-dark(rgb(101 106 119), rgb(166 171 184));
+      --border: light-dark(rgb(219 222 230), rgb(55 58 68));
+      --input: light-dark(rgb(255 255 255), rgb(34 36 43));
+      --primary: light-dark(rgb(84 67 226), rgb(151 139 255));
+      --primary-foreground: light-dark(rgb(255 255 255), rgb(20 18 31));
+      --accent: light-dark(rgb(237 234 255), rgb(49 43 84));
+      --accent-foreground: var(--foreground);
+      --success: light-dark(rgb(28 134 79), rgb(93 210 141));
+      --success-soft: color-mix(in srgb, var(--success) 15%, transparent);
+      --destructive: light-dark(rgb(201 54 63), rgb(255 111 119));
+      --destructive-soft: color-mix(in srgb, var(--destructive) 15%, transparent);
+      --warning: light-dark(rgb(177 112 0), rgb(244 191 73));
+      --warning-soft: color-mix(in srgb, var(--warning) 18%, transparent);
+      --neutral-soft: color-mix(in srgb, var(--muted-foreground) 13%, transparent);
+      --ring: var(--primary);
+      font-family: Inter, "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      background: var(--background);
+      color: var(--foreground);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button, select, input, textarea { border: 1px solid var(--border); border-radius: 10px; background: var(--input); }
+    button { min-height: 36px; padding: 7px 11px; cursor: pointer; }
+    button:hover { background: var(--accent); }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid color-mix(in srgb, var(--ring) 40%, transparent); outline-offset: 2px; }
+    button.primary { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+    button.ghost { background: transparent; }
+    button.danger { color: var(--destructive); }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    input, select, textarea { width: 100%; padding: 9px 10px; }
+    textarea { min-height: 92px; resize: vertical; }
+    label { display: grid; gap: 6px; min-width: 0; }
+    a { color: var(--primary); }
+    .app { width: 100%; padding: 16px; }
+    .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; margin-bottom: 14px; }
+    .heading { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .heading h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    .heading p { margin: 2px 0 0; color: var(--muted-foreground); }
+    .brand { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: var(--primary); color: var(--primary-foreground); font-weight: 700; }
+    .savebox { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+    .save-state { display: inline-flex; align-items: center; gap: 7px; color: var(--muted-foreground); }
+    .save-state::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: var(--muted-foreground); }
+    .save-state.saving::before { background: var(--warning); }
+    .save-state.saved::before { background: var(--success); }
+    .save-state.error { color: var(--destructive); }
+    .save-state.error::before { background: var(--destructive); }
+    .workspace { display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .sidebar, .detail { border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+    .sidebar { position: sticky; top: 12px; max-height: calc(100dvh - 24px); overflow: hidden; display: grid; grid-template-rows: auto auto minmax(120px, 1fr) auto; }
+    .sidebar-head, .filters, .sidebar-foot { padding: 12px; }
+    .sidebar-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+    .sidebar-head strong { font-size: 16px; }
+    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; border-bottom: 1px solid var(--border); }
+    .filters label:first-child { grid-column: 1 / -1; }
+    .bug-list { overflow-y: auto; overflow-x: hidden; padding: 8px; }
+    .bug-row { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 9px; align-items: center; min-height: 54px; margin-bottom: 6px; padding: 8px; text-align: left; background: transparent; }
+    .bug-row > span:nth-child(2) { min-width: 0; overflow: hidden; }
+    .bug-row[aria-current="true"] { border-color: var(--primary); background: var(--accent); }
+    .bug-row.pass { border-left: 4px solid var(--success); }
+    .bug-row.fail { border-left: 4px solid var(--destructive); }
+    .bug-row.suggestion { border-left: 4px solid var(--warning); }
+    .bug-row.untested { border-left: 4px solid var(--muted-foreground); }
+    .bug-id { font-weight: 650; }
+    .bug-title { overflow: hidden; color: var(--foreground); text-overflow: ellipsis; white-space: nowrap; }
+    .bug-meta { display: block; margin-top: 2px; color: var(--muted-foreground); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--muted-foreground); }
+    .pass .status-dot { background: var(--success); }
+    .fail .status-dot { background: var(--destructive); }
+    .suggestion .status-dot { background: var(--warning); }
+    .sidebar-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-top: 1px solid var(--border); }
+    .sidebar-foot .wide { grid-column: 1 / -1; }
+    .detail { min-width: 0; padding: 18px; }
+    .detail-empty { min-height: 360px; display: grid; place-items: center; color: var(--muted-foreground); text-align: center; }
+    .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+    .detail-head h2 { margin: 4px 0 0; font-size: 20px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { display: inline-flex; align-items: center; min-height: 25px; padding: 3px 8px; border-radius: 999px; background: var(--muted); color: var(--muted-foreground); font-size: 12px; }
+    .badge.pass { background: var(--success-soft); color: var(--success); }
+    .badge.fail { background: var(--destructive-soft); color: var(--destructive); }
+    .badge.suggestion { background: var(--warning-soft); color: var(--warning); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .section { padding: 14px 0; border-top: 1px solid var(--border); }
+    .section:first-of-type { border-top: 0; }
+    .section h3 { margin: 0 0 9px; font-size: 15px; }
+    .section p { margin: 0; }
+    .section ol { margin: 0; padding-left: 22px; }
+    .section li + li { margin-top: 5px; }
+    .muted { color: var(--muted-foreground); }
+    .decision-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .decision-grid button.pass.active { border-color: var(--success); background: var(--success-soft); color: var(--success); }
+    .decision-grid button.fail.active { border-color: var(--destructive); background: var(--destructive-soft); color: var(--destructive); }
+    .decision-grid button.suggestion.active { border-color: var(--warning); background: var(--warning-soft); color: var(--warning); }
+    .decision-grid button.untested.active { border-color: var(--muted-foreground); background: var(--neutral-soft); }
+    .completion-row, .stars, .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .completion-row button.active { border-color: var(--primary); background: var(--accent); }
+    .stars button { min-width: 38px; padding-inline: 8px; font-size: 18px; }
+    .stars button.active { border-color: var(--warning); color: var(--warning); background: var(--warning-soft); }
+    .field-stack { display: grid; gap: 12px; }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .image-card { display: grid; gap: 6px; min-width: 0; }
+    .image-button { width: 100%; padding: 0; overflow: hidden; background: var(--muted); }
+    .image-button img { display: block; width: 100%; height: 118px; object-fit: cover; }
+    .image-label { overflow: hidden; color: var(--muted-foreground); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .analysis-note { padding: 10px 12px; border-left: 3px solid var(--warning); background: var(--warning-soft); color: var(--foreground); }
+    dialog { width: min(960px, calc(100% - 32px)); max-height: 90dvh; padding: 0; border: 1px solid var(--border); border-radius: 14px; background: var(--card); color: var(--foreground); }
+    dialog::backdrop { background: color-mix(in srgb, var(--background) 72%, transparent); backdrop-filter: blur(8px); }
+    .dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .dialog-body { padding: 14px; overflow: auto; }
+    #image-full { display: block; max-width: 100%; max-height: 75dvh; margin: auto; object-fit: contain; }
+    .new-bug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .new-bug-grid .wide { grid-column: 1 / -1; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 900px) {
+      .app { padding: 10px; }
+      .workspace { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); gap: 10px; }
+      .detail { padding: 14px; }
+      .detail-grid, .decision-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      .topbar { grid-template-columns: 1fr; }
+      .savebox { justify-content: flex-start; }
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar { position: static; max-height: none; }
+      .bug-list { max-height: 280px; }
+      .detail-grid, .new-bug-grid { grid-template-columns: 1fr; }
+      .new-bug-grid .wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <header class="topbar">
+      <div class="heading">
+        <div class="brand" aria-hidden="true">TB</div>
+        <div>
+          <h1>验收bug</h1>
+          <p id="progress">正在读取验收记录…</p>
+        </div>
+      </div>
+      <div class="savebox">
+        <span class="save-state" id="save-state" aria-live="polite">正在连接磁盘备份…</span>
+        <button type="button" id="retry-save" hidden>重试保存</button>
+        <a id="disk-link" href="/tabflow-v2-acceptance-server-state.json" target="_blank" rel="noopener">查看磁盘记录</a>
+        <button type="button" id="export-state">导出备份</button>
+        <button type="button" id="import-state">导入备份</button>
+        <button type="button" class="primary" id="complete-review">结束本轮并生成文档</button>
+        <input id="import-file" class="sr-only" type="file" accept="application/json,.json">
+        <button type="button" id="theme">切换主题</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="验收bug切换与筛选">
+        <div class="sidebar-head">
+          <strong>验收bug列表</strong>
+          <span class="muted" id="filter-count">0 项</span>
+        </div>
+        <div class="filters">
+          <label>搜索
+            <input id="search" type="search" placeholder="编号、标题或建议">
+          </label>
+          <label>一级模块
+            <select id="module-filter"></select>
+          </label>
+          <label>条目类型
+            <select id="type-filter"><option value="all">全部类型</option><option value="bug">Bug</option><option value="requirement">新需求</option></select>
+          </label>
+          <label>反馈时间段
+            <select id="period-filter"></select>
+          </label>
+          <label>处理状态
+            <select id="decision-filter">
+              <option value="all">全部状态</option>
+              <option value="pass">通过</option>
+              <option value="fail">不通过</option>
+              <option value="suggestion">手动建议</option>
+              <option value="untested">未处理</option>
+            </select>
+          </label>
+          <label>是否结束
+            <select id="completion-filter">
+              <option value="all">全部</option>
+              <option value="open">未结束</option>
+              <option value="closed">已结束</option>
+            </select>
+          </label>
+          <label>修复状态
+            <select id="repair-filter"></select>
+          </label>
+        </div>
+        <div class="bug-list" id="bug-list" aria-live="polite"></div>
+        <div class="sidebar-foot">
+          <button type="button" id="prev">上一个</button>
+          <button type="button" id="next">下一个</button>
+          <button type="button" class="primary wide" id="next-open">下一个未结束</button>
+          <div class="actions"><button type="button" class="wide" id="new-bug">＋ 新增 Bug</button><button type="button" class="wide" id="new-requirement">＋ 新增需求</button></div>
+        </div>
+      </aside>
+
+      <section class="detail" id="detail" aria-live="polite">
+        <div class="detail-empty">请选择一个验收bug。</div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="image-dialog">
+    <div class="dialog-head">
+      <strong id="image-title">图片</strong>
+      <div class="actions">
+        <a id="image-open" target="_blank" rel="noopener">打开原图</a>
+        <button type="button" data-close="image-dialog">关闭</button>
+      </div>
+    </div>
+    <div class="dialog-body"><img id="image-full" alt=""></div>
+  </dialog>
+
+  <dialog id="bug-dialog">
+    <div class="dialog-head">
+      <strong id="bug-dialog-title">新增 Bug</strong>
+      <button type="button" data-close="bug-dialog">关闭</button>
+    </div>
+    <div class="dialog-body field-stack">
+      <div class="new-bug-grid">
+        <label>一级模块<select id="bug-module"></select></label>
+        <label>二级模块<input id="bug-submodule" placeholder="例如：拖动排序"></label>
+        <label class="wide" id="bug-text-label">Bug 描述<textarea id="bug-text" placeholder="写下实际现象、复现方式和期望；可粘贴截图"></textarea></label>
+        <label class="wide">疑问区<textarea id="bug-questions" placeholder="有疑问时在这里记录"></textarea></label>
+      </div>
+      <div><strong>优先级</strong><div class="stars" id="bug-stars"></div></div>
+      <div id="bug-images" class="image-grid"></div>
+      <div class="actions">
+        <button type="button" class="primary" id="save-bug">保存 Bug</button>
+        <button type="button" class="danger" id="delete-bug" hidden>删除当前条目</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+  (() => {
+    'use strict';
+    const QA_MODE = new URLSearchParams(location.search).get('qa') === '1';
+    const API_PREFIX = '/api/review';
+    const API = QA_MODE ? '/api/review/qa-state' : '/api/review/state';
+    const EXPORT_API = '/api/review/export';
+    const COMPLETE_API = '/api/review/complete';
+    const STATIC_STATE = '/tabflow-v2-acceptance-server-state.json';
+    const CATALOG = '/bug-workbench-catalog.json';
+    const LOCAL_KEY = QA_MODE ? 'ai-bug-workbench-v1-qa' : 'ai-bug-workbench-v1';
+    const COMPLETE_OPERATION_KEY = `${LOCAL_KEY}-pending-complete-operation`;
+    const EXPORT_OPERATION_KEY = `${LOCAL_KEY}-pending-export-operation`;
+    // A real TabFlow review state can contain several megabytes of pasted-image
+    // history. Give the atomic disk writer enough time to finish and answer
+    // before the browser aborts an otherwise successful save.
+    const REQUEST_TIMEOUT_MS = 12000;
+    const COMPLETE_TIMEOUT_MS = 45000;
+    const DB_NAME = `${LOCAL_KEY}-db`;
+    const DB_STORE = 'review';
+    const DB_KEY = 'state';
+    const groupsFallback = [['newtab','新页窗口'],['workspace','浮层双栏'],['preview','预览'],['dock','网页拓展坞'],['search','搜索'],['ai','AI'],['guidance','引导'],['compat','兼容性'],['other','其他']];
+    const repairLabels = {untriaged:'待分析',analyzing:'分析中','needs-clarification':'待确认',queued:'待修复','in-progress':'修复中','fixed-awaiting-review':'已修复待验收',accepted:'已验收',blocked:'受阻'};
+    const decisionLabels = {pass:'通过',fail:'不通过',suggestion:'手动建议',untested:'未处理'};
+    const $ = selector => document.querySelector(selector);
+    const els = {
+      progress: $('#progress'), save: $('#save-state'), retrySave: $('#retry-save'), list: $('#bug-list'), detail: $('#detail'), count: $('#filter-count'),
+      search: $('#search'), module: $('#module-filter'), type: $('#type-filter'), period: $('#period-filter'), decision: $('#decision-filter'), completion: $('#completion-filter'), repair: $('#repair-filter'),
+      imageDialog: $('#image-dialog'), imageTitle: $('#image-title'), imageFull: $('#image-full'), imageOpen: $('#image-open'),
+      bugDialog: $('#bug-dialog'), bugDialogTitle: $('#bug-dialog-title'), bugModule: $('#bug-module'), bugSubmodule: $('#bug-submodule'), bugText: $('#bug-text'), bugQuestions: $('#bug-questions'), bugStars: $('#bug-stars'), bugImages: $('#bug-images'), deleteBug: $('#delete-bug')
+    };
+    let catalog = {groups:groupsFallback, periods:[], items:[]};
+    let state = null;
+    let selectedId = '';
+    let editingBugId = '';
+    let bugDraft = null;
+    let saveTimer = 0;
+    let saveChain = Promise.resolve();
+    let editRevision = 0;
+    let diskRevision = 0;
+    let lastSaveError = '';
+    let lastLocalSaveOk = true;
+    let retryTimer = 0;
+    let retryAttempt = 0;
+
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    const nowIso = () => new Date().toISOString();
+    const clampPriority = value => Math.max(1, Math.min(5, Number(value) || 3));
+    const groupMap = () => Object.fromEntries(catalog.groups || groupsFallback);
+    const validDecision = value => ['pass','fail','suggestion','untested'].includes(value) ? value : 'untested';
+    const hasFeedback = record => Boolean(String(record?.note || record?.questions || '').trim());
+    const completionFor = record => {
+      // Feedback always re-opens the item so a new request cannot be hidden by a prior close.
+      // Only a passed item with a new note/question is forced back open. A
+      // manually closed failed/suggested item must remain closed.
+      if (validDecision(record?.status) === 'pass' && hasFeedback(record)) return 'open';
+      // A user/AI completion decision is authoritative across normalization and refreshes.
+      if (['manual','inferred'].includes(record?.completion_source) && ['open','closed'].includes(record?.completion_status)) {
+        return record.completion_status;
+      }
+      return validDecision(record?.status) === 'pass' ? 'closed' : 'open';
+    };
+    const recordPriority = record => clampPriority(record?.priority_source === 'manual' ? record?.manual_priority || record?.priority : record?.default_priority || 3);
+    const basename = path => String(path || '').replaceAll('\\','/').split('/').pop();
+    const imageSrc = src => String(src || '').startsWith('data:image/') || String(src || '').startsWith('blob:') ? src : `/${encodeURIComponent(basename(src))}`;
+    const fileUrl = path => path ? `file:///${String(path).replaceAll('\\','/')}` : '';
+    const formatTime = value => value ? new Intl.DateTimeFormat('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(value)) : '';
+
+    function normalizeState(raw) {
+      const base = raw && typeof raw === 'object' ? clone(raw) : {};
+      base.schema_version = Math.max(5, Number(base.schema_version) || 0);
+      base.items = base.items && typeof base.items === 'object' ? base.items : {};
+      base.bugs = Array.isArray(base.bugs) ? base.bugs : [];
+      base.bug_draft = base.bug_draft && typeof base.bug_draft === 'object' ? base.bug_draft : {};
+      base.filters = base.filters && typeof base.filters === 'object' ? base.filters : {};
+      for (const item of catalog.items) {
+        const current = base.items[item.id] && typeof base.items[item.id] === 'object' ? base.items[item.id] : {};
+        current.status = validDecision(current.status);
+        current.default_priority = clampPriority(current.default_priority || 3);
+        current.priority = recordPriority(current);
+        current.completion_status = completionFor(current);
+        if (current.repair_status === 'fixed') current.repair_status = 'fixed-awaiting-review';
+        current.repair_status = repairLabels[current.repair_status] ? current.repair_status : 'untriaged';
+        current.attachments = Array.isArray(current.attachments) ? current.attachments : [];
+        current.description_history = Array.isArray(current.description_history) ? current.description_history : [];
+        base.items[item.id] = current;
+      }
+      base.bugs = base.bugs.map(bug => {
+        const repairStatus = bug.repair_status === 'fixed' ? 'fixed-awaiting-review' : bug.repair_status;
+        const inferredType = String(bug.entry_type || '').toLowerCase() === 'requirement' || /^REQ-\d+$/i.test(String(bug.id || '')) ? 'requirement' : 'bug';
+        const normalized = {...bug,entry_type:inferredType,status:validDecision(bug.status || 'suggestion'),completion_status:completionFor(bug),priority:recordPriority(bug),default_priority:clampPriority(bug.default_priority || 3),repair_status:repairLabels[repairStatus] ? repairStatus : 'untriaged',images:Array.isArray(bug.images) ? bug.images : [],description_history:Array.isArray(bug.description_history) ? bug.description_history : []};
+        for (const field of ['source_images','evidence_images','source_images_original_paths','evidence_images_original_paths','recovery_source_images']) delete normalized[field];
+        return normalized;
+      });
+      return base;
+    }
+
+    function normalizePeriod(value, createdAt = '', fallback = '2026-07-18-review') {
+      if (value === 'review') return '2026-07-18-review';
+      if (!value || value === 'base') return fallback;
+      if (value === '2026-07-18') return '2026-07-18-review';
+      const createdDate = String(createdAt || '').slice(0,10);
+      return value || (createdDate === '2026-07-18' ? '2026-07-18-review' : createdDate || fallback);
+    }
+
+    function allRecords() {
+      const staticRecords = catalog.items.map(meta => { const data = state.items[meta.id]; return {kind:'item',id:meta.id,group:meta.group,title:meta.title,period:normalizePeriod(data?.conversation_period,'',meta.source_period),meta,data}; });
+      const dynamicRecords = state.bugs.map(bug => ({kind:'bug',entryType:bug.entry_type || 'bug',id:bug.id,group:bug.module || 'other',title:bug.submodule || String(bug.text || '').split(/\r?\n/)[0] || (bug.entry_type === 'requirement' ? '新增需求' : '新增 Bug'),period:normalizePeriod(bug.conversation_period,bug.created_at),meta:null,data:bug}));
+      return [...staticRecords, ...dynamicRecords];
+    }
+
+    function currentRecord() { return allRecords().find(record => record.id === selectedId) || null; }
+    function periodLabel(value) { return Object.fromEntries(catalog.periods || [])[value] || (value ? `${value} · 新增反馈` : '时间未记录'); }
+    function filteredRecords() {
+      const query = els.search.value.trim().toLowerCase();
+      return allRecords().filter(record => {
+        const haystack = [record.id,record.title,record.data?.note,record.data?.text,record.data?.questions].join(' ').toLowerCase();
+        return (!query || haystack.includes(query))
+          && (els.module.value === 'all' || record.group === els.module.value)
+          && (els.type.value === 'all' || (record.data?.entry_type || 'bug') === els.type.value)
+          && (els.period.value === 'all' || record.period === els.period.value)
+          && (els.decision.value === 'all' || validDecision(record.data?.status) === els.decision.value)
+          && (els.completion.value === 'all' || completionFor(record.data) === els.completion.value)
+          && (els.repair.value === 'all' || (record.data?.repair_status || 'untriaged') === els.repair.value);
+      });
+    }
+
+    const sensitiveKeyPattern = /(api.?key|access.?key|private.?key|account.?key|secret.?access.?key|shared.?access.?(?:key|signature)|session.?token|client.?secret|sas.?token|secret|token|password|authorization|credential|(^|[^a-z0-9])key([^a-z0-9]|$)|(^|[^a-z0-9])sig([^a-z0-9]|$))/i;
+    const credentialPatterns = [
+      /\b(?:sk|xai|sk-ant)-[A-Za-z0-9_-]{8,}\b/gi,
+      /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{12,}\b/g,
+      /\b(?:hf|npm)_[A-Za-z0-9_-]{16,}\b/g,
+      /\bpypi-[A-Za-z0-9_-]{20,}\b/g,
+      /\bya29\.[A-Za-z0-9_-]{20,}\b/g,
+      /\bazdpat_[A-Za-z0-9_-]{20,}\b/gi,
+      /\b[A-Za-z0-9]{75}AZDO[A-Za-z0-9]{5}\b/g,
+      /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g,
+      /\bgithub_pat_[A-Za-z0-9_]{20,}\b/gi,
+      /\bglpat-[A-Za-z0-9_-]{20,}\b/g,
+      /\bAIza[0-9A-Za-z_-]{30,}\b/g,
+      /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/gi,
+      /\bwhsec_[A-Za-z0-9]{16,}\b/gi,
+      /\bGOCSPX-[A-Za-z0-9_-]{16,}\b/g,
+      /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g,
+      /\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
+      /\bBearer\s+[A-Za-z0-9._~+/=-]{8,}\b/gi,
+      /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g
+    ];
+    const credentialAssignmentPattern = /(?<![.\w])["']?(?<name>api[_ -]?key|access[_ -]?key|private[_ -]?key|account[_ -]?key|secret[_ -]?access[_ -]?key|shared[_ -]?access[_ -]?(?:key|signature)|session[_ -]?token|aws[_ -]?(?:access[_ -]?key(?:[_ -]?id)?|secret[_ -]?access[_ -]?key|session[_ -]?token)|azure[_ -]?(?:storage[_ -]?(?:account[_ -]?)?key|account[_ -]?key|shared[_ -]?access[_ -]?key|sas[_ -]?token|client[_ -]?secret)|(?:gcp|google)[_ -]?(?:service[_ -]?account[_ -]?key|api[_ -]?key|client[_ -]?secret|access[_ -]?token)|(?:github|gitlab)[_ -]?(?:token|pat|client[_ -]?secret)|stripe[_ -]?(?:secret|restricted)[_ -]?key|client[_ -]?secret|sas[_ -]?token|access[_ -]?token|refresh[_ -]?token|id[_ -]?token|password|token|secret|authorization|credential|key|sig)["']?\s*(?::|=(?!=|>))\s*(?:"[^"]+"|'[^']+'|[^\s,;='"]+)/gi;
+    function redactSensitiveString(value) {
+      let result = String(value);
+      for (const pattern of credentialPatterns) result = result.replace(pattern, '[REDACTED]');
+      return result.replace(credentialAssignmentPattern, (match,...args) => {
+        if (match.includes('[REDACTED]')) return match;
+        const groups = args.at(-1);
+        return `${groups.name}=[REDACTED]`;
+      });
+    }
+    function redactSecrets(value, key = '') {
+      if (sensitiveKeyPattern.test(String(key))) return '[REDACTED]';
+      if (typeof value === 'string') return redactSensitiveString(value);
+      if (Array.isArray(value)) return value.map(item => redactSecrets(item));
+      if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([childKey,childValue]) => [childKey,redactSecrets(childValue,childKey)]));
+      return value;
+    }
+
+    const orderedCatalogIds = () => catalog.items.map(item => String(item?.id || '').trim());
+    function validateDynamicIds(bugs, catalogIds = orderedCatalogIds()) {
+      if (!Array.isArray(bugs)) return false;
+      const reserved = new Set(catalogIds);
+      const seen = new Set();
+      return bugs.every(bug => {
+        const id = String(bug?.id || '').trim();
+        if (!id || reserved.has(id) || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+    }
+    function validStateIdentity(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+      if (String(value.project || '') !== String(catalog.project || '')) return false;
+      if (Number(value.schema_version || 0) < 5 || String(value.catalog_id || '') !== String(catalog.catalog_id || '')) return false;
+      if (!value.items || typeof value.items !== 'object' || Array.isArray(value.items)) return false;
+      const expected = orderedCatalogIds();
+      const actual = Object.keys(value.items);
+      return actual.length === expected.length
+        && actual.every((id,index) => id === expected[index])
+        && validateDynamicIds(value.bugs, expected);
+    }
+    function stableCanonical(value) {
+      if (Array.isArray(value)) return `[${value.map(stableCanonical).join(',')}]`;
+      if (value && typeof value === 'object') {
+        return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableCanonical(value[key])}`).join(',')}}`;
+      }
+      return JSON.stringify(value);
+    }
+    function catalogAuthorityDocument(value) {
+      const manifest = value.sanitized_image_manifest && typeof value.sanitized_image_manifest === 'object'
+        ? Object.fromEntries(Object.entries(value.sanitized_image_manifest).map(([name,proof]) => [String(name),{
+            algorithm:String(proof?.algorithm || ''),
+            format:String(proof?.format || ''),
+            pixel_sha256:String(proof?.pixel_sha256 || ''),
+            output_sha256:String(proof?.output_sha256 || '')
+          }]))
+        : {};
+      return {
+        catalog_id_version:3,
+        project:String(value.project || '').trim(),
+        expected_item_count:Number(value.expected_item_count || value.items.length),
+        workbench_file:String(value.workbench_file || ''),
+        workbench_canonical_sha256:String(value.workbench_canonical_sha256 || ''),
+        project_dir:String(value.project_dir || ''),
+        items:value.items.map(item => ({
+          id:String(item?.id || '').trim(),
+          source_images:(item?.source_images || []).map(String),
+          evidence_images:(item?.evidence_images || []).map(String)
+        })),
+        sanitized_image_manifest:manifest
+      };
+    }
+    async function canonicalCatalogId(value) {
+      const encoded = new TextEncoder().encode(stableCanonical(catalogAuthorityDocument(value)));
+      const digest = await crypto.subtle.digest('SHA-256', encoded);
+      return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2,'0')).join('');
+    }
+    async function validateCatalogIdentity() {
+      const ids = orderedCatalogIds();
+      if (!String(catalog.project || '').trim() || String(catalog.project) !== 'AI备忘录') throw new Error('验收bug目录项目身份不一致。');
+      if (ids.some(id => !id) || new Set(ids).size !== ids.length) throw new Error('验收bug目录条目 ID 缺失或重复。');
+      const expectedCount = Number(catalog.expected_item_count || ids.length);
+      if (expectedCount !== ids.length) throw new Error(`验收bug目录不完整：应为 ${expectedCount} 条，当前为 ${ids.length} 条。`);
+      const canonical = await canonicalCatalogId(catalog);
+      if (String(catalog.catalog_id || '') !== canonical) throw new Error('验收bug目录 SHA-256 身份校验失败。');
+      const pinned = document.querySelector('meta[name="bug-workbench-catalog-id"]')?.content || '';
+      if (pinned !== canonical) throw new Error('验收bug工作台与目录身份不一致。');
+    }
+
+    function snapshot() {
+      const time = Date.now();
+      const version = String(catalog?.version || document.querySelector('meta[name="bug-workbench-version"]')?.content || state?.version || '0.1.5+7 测试版待验收');
+      return redactSecrets({...state,schema_version:5,project:String(catalog.project || 'AI备忘录'),version,project_dir:String(catalog.project_dir || state.project_dir || ''),catalog_id:String(catalog.catalog_id || ''),updated_at:new Date(time).toISOString(),updated_at_ms:time,selected_id:selectedId,filters:{...state.filters,workbench:{search:els.search.value,module:els.module.value,type:els.type.value,period:els.period.value,decision:els.decision.value,completion:els.completion.value,repair:els.repair.value}}});
+    }
+
+    function saveLocal(snap) {
+      try { localStorage.setItem(LOCAL_KEY, JSON.stringify(redactSecrets(snap))); return true; }
+      catch (error) { lastSaveError = '浏览器本地保存失败'; return false; }
+    }
+
+    function showDiskLink(url, label) {
+      const link = $('#disk-link');
+      link.href = url;
+      link.textContent = label;
+      link.hidden = false;
+      return link;
+    }
+
+    async function postSnapshot(url, payload, label, timeoutMs = REQUEST_TIMEOUT_MS, extraHeaders = {}) {
+      const controller = typeof AbortController === 'function' ? new AbortController() : null;
+      try {
+        return await withTimeout((async () => {
+          const response = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...extraHeaders},body:JSON.stringify(redactSecrets(payload)),cache:'no-store',...(controller ? {signal:controller.signal} : {})});
+          const body = await withTimeout(response.json(), `${label}响应体读取超时`);
+          if (!response.ok || !body?.ok) throw new Error(body?.error || `HTTP ${response.status}`);
+          return body;
+        })(), `${label}请求超时`, timeoutMs);
+      } catch (error) {
+        controller?.abort?.();
+        throw error;
+      }
+    }
+
+    async function exportBackup() {
+      const payload = snapshot();
+      const operationId = String(
+        localStorage.getItem(EXPORT_OPERATION_KEY)
+        || crypto.randomUUID?.()
+        || `export-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      );
+      localStorage.setItem(EXPORT_OPERATION_KEY, operationId);
+      els.save.className = 'save-state saving';
+      els.save.textContent = '正在写入时间戳磁盘备份…';
+      let result;
+      try {
+        result = await postSnapshot(
+          EXPORT_API,
+          payload,
+          '导出',
+          REQUEST_TIMEOUT_MS,
+          {'X-Review-Operation-Id':operationId}
+        );
+      } catch (error) {
+        if (!/超时|fetch|network|abort/i.test(String(error?.message || error))) {
+          if (/新的 operation id|已终止|回滚/i.test(String(error?.message || error))) {
+            localStorage.removeItem(EXPORT_OPERATION_KEY);
+          }
+          throw error;
+        }
+        result = {status:'running'};
+      }
+      if (result.status === 'running') {
+        const pollStarted = Date.now();
+        while (Date.now() - pollStarted < 135000) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const operation = await loadJson(`${API_PREFIX}/operations/${encodeURIComponent(operationId)}`);
+          if (['committed','committed-with-cleanup-pending'].includes(operation.status)) {
+            result = {...(operation.result || {}),status:operation.status};
+            break;
+          }
+          if (operation.status === 'rolled-back' || operation.status === 'failed') {
+            localStorage.removeItem(EXPORT_OPERATION_KEY);
+            throw new Error(operation.error || '导出事务已终止；请重新导出');
+          }
+        }
+      }
+      if (result.status === 'running') throw new Error('导出 operation 状态查询超时');
+      localStorage.removeItem(EXPORT_OPERATION_KEY);
+      showDiskLink(result.backup_url || result.download_url, '打开本次导出 JSON');
+      els.save.className = 'save-state saved';
+      els.save.textContent = `磁盘备份已生成 ${result.backup_path || ''}`;
+      return result;
+    }
+
+    async function importBackup(file) {
+      const raw = await file.text();
+      const imported = JSON.parse(raw);
+      if (!imported || typeof imported !== 'object' || Array.isArray(imported)) throw new Error('备份必须是 JSON 对象');
+      if (Number(imported.schema_version || 0) < 5) throw new Error('备份 schema_version 过旧');
+      if (!validStateIdentity(imported)) throw new Error('备份的项目、目录顺序或动态验收bug ID 与当前工作台不一致');
+      const beforeImport = await exportBackup();
+      const nextState = normalizeState(redactSecrets(imported));
+      state = nextState;
+      selectedId = allRecords().some(record => record.id === imported.selected_id) ? imported.selected_id : allRecords()[0]?.id || '';
+      render();
+      markDirty(`已在 ${beforeImport.backup_path || '磁盘'} 备份原状态，正在写入导入内容`);
+    }
+
+    function withTimeout(promise, label, milliseconds = REQUEST_TIMEOUT_MS) {
+      let timer = 0;
+      return Promise.race([
+        Promise.resolve(promise),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label)), milliseconds); })
+      ]).finally(() => clearTimeout(timer));
+    }
+
+    function openDatabase() {
+      return withTimeout(new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) return reject(new Error('IndexedDB unavailable'));
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = () => {
+          if (!request.result.objectStoreNames.contains(DB_STORE)) request.result.createObjectStore(DB_STORE);
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error || new Error('IndexedDB open failed'));
+        request.onblocked = () => reject(new Error('IndexedDB open blocked'));
+      }), 'IndexedDB open timeout');
+    }
+
+    async function readIndexedSnapshot() {
+      const database = await openDatabase();
+      try {
+        return await withTimeout(new Promise((resolve, reject) => {
+          const transaction = database.transaction(DB_STORE, 'readonly');
+          const request = transaction.objectStore(DB_STORE).get(DB_KEY);
+          request.onsuccess = () => resolve(request.result || null);
+          request.onerror = () => reject(request.error || new Error('IndexedDB read failed'));
+          transaction.onerror = () => reject(transaction.error || new Error('IndexedDB read failed'));
+          transaction.onabort = () => reject(transaction.error || new Error('IndexedDB read aborted'));
+        }), 'IndexedDB read timeout');
+      } finally {
+        database.close();
+      }
+    }
+
+    async function writeIndexedSnapshot(snap) {
+      const database = await openDatabase();
+      try {
+        await withTimeout(new Promise((resolve, reject) => {
+          const transaction = database.transaction(DB_STORE, 'readwrite');
+          transaction.objectStore(DB_STORE).put(redactSecrets(snap), DB_KEY);
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject(transaction.error || new Error('IndexedDB write failed'));
+          transaction.onabort = () => reject(transaction.error || new Error('IndexedDB write aborted'));
+        }), 'IndexedDB write timeout');
+      } finally {
+        database.close();
+      }
+    }
+
+    function compactHostSnapshot(snap) {
+      const compact = clone(redactSecrets(snap));
+      for (const item of Object.values(compact.items || {})) {
+        item.attachments = [];
+      }
+      for (const bug of compact.bugs || []) {
+        bug.images = [];
+      }
+      compact.host_image_omissions = true;
+      return compact;
+    }
+
+    async function readHostSnapshot() {
+      return withTimeout(Promise.resolve().then(async () => {
+        const openai = window.openai;
+        if (!openai) return null;
+        const widgetState = await Promise.resolve(openai.widgetState);
+        return widgetState?.privateContent?.[LOCAL_KEY] || widgetState?.[LOCAL_KEY] || null;
+      }), 'Codex host read timeout');
+    }
+
+    async function writeHostSnapshot(snap) {
+      const setWidgetState = window.openai?.setWidgetState;
+      if (typeof setWidgetState !== 'function') return false;
+      await withTimeout(
+        Promise.resolve(setWidgetState({
+          privateContent: {[LOCAL_KEY]:compactHostSnapshot(snap)}
+        })),
+        'Codex host save timeout'
+      );
+      return true;
+    }
+
+    function markDirty(message = '改动已暂存') {
+      editRevision += 1;
+      const snap = snapshot();
+      state.updated_at = snap.updated_at;
+      state.updated_at_ms = snap.updated_at_ms;
+      lastLocalSaveOk = saveLocal(snap);
+      void writeIndexedSnapshot(snap).catch(() => {});
+      void writeHostSnapshot(snap).catch(() => {});
+      els.save.className = lastLocalSaveOk ? 'save-state saving' : 'save-state error';
+      els.save.textContent = lastLocalSaveOk ? `${message}，正在写入磁盘…` : '浏览器本机缓存失败，正在立即写入磁盘，请勿关闭页面…';
+      els.retrySave.hidden = true;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { saveChain = saveChain.then(flushSave); }, 320);
+    }
+
+    async function flushSave() {
+      const targetRevision = editRevision;
+      if (targetRevision <= diskRevision) return;
+      const snap = snapshot();
+      try {
+        await postSnapshot(API, snap, '保存');
+        diskRevision = targetRevision;
+        lastSaveError = '';
+        retryAttempt = 0;
+        clearTimeout(retryTimer);
+        els.retrySave.hidden = true;
+        els.save.className = 'save-state saved';
+        els.save.textContent = `磁盘已保存 ${formatTime(Date.now())}`;
+      } catch (error) {
+        lastSaveError = String(error.message || error);
+        els.save.className = 'save-state error';
+        retryAttempt += 1;
+        if (retryAttempt <= 5) {
+          const delay = Math.min(16000, 1000 * (2 ** (retryAttempt - 1)));
+          els.save.textContent = `${lastLocalSaveOk ? '磁盘保存失败；本机副本仍在' : '本机缓存和磁盘均未写入，请勿关闭页面'} · ${Math.round(delay / 1000)} 秒后自动重试`;
+          clearTimeout(retryTimer);
+          retryTimer = setTimeout(() => { saveChain = saveChain.then(flushSave); }, delay);
+        } else {
+          els.save.textContent = `${lastLocalSaveOk ? '磁盘保存失败；本机副本仍在' : '保存失败：本机缓存和磁盘均未写入，请勿关闭页面'} · ${lastSaveError}`;
+          els.retrySave.hidden = false;
+        }
+      }
+      if (editRevision > targetRevision) saveChain = saveChain.then(flushSave);
+    }
+
+    function renderProgress() {
+      const records = allRecords();
+      const counts = {pass:0,fail:0,suggestion:0,untested:0,open:0,closed:0};
+      records.forEach(record => { counts[validDecision(record.data?.status)] += 1; counts[completionFor(record.data)] += 1; });
+      const typeCounts = {bug: records.filter(record => (record.data?.entry_type || 'bug') === 'bug').length, requirement: records.filter(record => record.data?.entry_type === 'requirement').length};
+      els.progress.textContent = `共 ${records.length} 个（Bug ${typeCounts.bug} · 新需求 ${typeCounts.requirement}）· 通过 ${counts.pass} · 不通过 ${counts.fail} · 建议 ${counts.suggestion} · 未处理 ${counts.untested} · 未结束 ${counts.open}`;
+    }
+
+    function renderList() {
+      const records = filteredRecords();
+      els.count.textContent = `${records.length} 项`;
+      if (!records.some(record => record.id === selectedId) && records.length) selectedId = records[0].id;
+      els.list.innerHTML = records.length ? records.map(record => {
+        const decision = validDecision(record.data?.status);
+        const completion = completionFor(record.data);
+        return `<button type="button" class="bug-row ${decision}" data-select="${esc(record.id)}" aria-current="${record.id === selectedId}">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span><span class="bug-id">${esc(record.id)}</span> <span class="bug-title">${esc(record.title)}</span><span class="bug-meta">${esc(groupMap()[record.group] || '其他')} · ${esc(decisionLabels[decision])} · ${completion === 'closed' ? '已结束' : '未结束'} · ${esc(repairLabels[record.data?.repair_status] || repairLabels.untriaged)}</span></span>
+          <span aria-hidden="true">›</span>
+        </button>`;
+      }).join('') : '<p class="muted">没有符合筛选条件的条目。</p>';
+    }
+
+    function starsMarkup(priority, prefix = 'priority') {
+      return [1,2,3,4,5].map(value => `<button type="button" class="${priority >= value ? 'active' : ''}" data-${prefix}="${value}" aria-pressed="${priority >= value}" aria-label="${value} 星">${priority >= value ? '★' : '☆'}</button>`).join('');
+    }
+
+    function imageCards(images, owner, allowDelete = false, originalPaths = []) {
+      if (!images.length) return '<p class="muted">暂无图片。</p>';
+      return images.map((image,index) => {
+        const raw = typeof image === 'string' ? image : image.data_url || image.path || '';
+        const src = imageSrc(raw);
+        const originalPath = originalPaths[index] || '';
+        return `<div class="image-card"><button type="button" class="image-button" data-image="${esc(src)}" data-original-path="${esc(originalPath)}" data-image-label="${esc(`${owner} 图片 ${index + 1}`)}"><img src="${esc(src)}" alt="${esc(`${owner} 图片 ${index + 1}`)}"></button><span class="image-label">${esc(basename(raw) || `粘贴图片 ${index + 1}`)}</span>${originalPath ? `<span class="image-label" title="${esc(originalPath)}">原始路径：${esc(originalPath)}</span>` : ''}${allowDelete && typeof image === 'object' ? `<button type="button" class="ghost danger" data-delete-image="${esc(image.id || index)}">删除</button>` : ''}</div>`;
+      }).join('');
+    }
+
+    function renderDetail() {
+      const record = currentRecord();
+      if (!record) { els.detail.innerHTML = '<div class="detail-empty">当前筛选没有可显示的条目。</div>'; return; }
+      const data = record.data || {};
+      const decision = validDecision(data.status);
+      const completion = completionFor(data);
+      const priority = recordPriority(data);
+      const sourceImages = record.kind === 'item' ? [...(record.meta.source_images || [])] : [...(data.images || [])];
+      const sourceOriginalPaths = record.kind === 'item' ? (record.meta.source_images_original_paths || []) : [];
+      const traceabilityWarnings = record.kind === 'item' ? (record.meta.traceability_warnings || []) : ((data.traceability_warnings || []).length ? data.traceability_warnings : (!sourceImages.length ? ['新增验收bug未绑定原始产品截图'] : []));
+      const attachments = record.kind === 'item' ? (data.attachments || []) : [];
+      const evidenceImages = record.kind === 'item' ? (record.meta.evidence_images || []) : [];
+      const sourceText = record.kind === 'item' ? record.meta.source : data.text || '';
+      const precondition = record.kind === 'item' ? record.meta.precondition : (data.precondition || '按新增验收bug描述复现。');
+      const steps = record.kind === 'item' ? record.meta.steps : ((data.steps || []).length ? data.steps : ['按照新增验收bug描述复现。']);
+      const expected = record.kind === 'item' ? record.meta.expected : (data.expected || '新增问题不再复现。');
+      const latestText = record.kind === 'item' ? data.note || '' : data.text || '';
+      const isRequirement = record.kind === 'bug' && (data.entry_type || 'bug') === 'requirement';
+      const entryLabel = isRequirement ? '新需求' : 'Bug';
+      const listText = value => Array.isArray(value) ? value.join('\n') : (value || '');
+      els.detail.innerHTML = `<div class="detail-head"><div><div class="badges"><span class="badge">${esc(record.id)}</span><span class="badge">${entryLabel}</span><span class="badge ${decision}">${esc(decisionLabels[decision])}</span><span class="badge" data-current-completion-badge>${completion === 'closed' ? '已结束' : '未结束'}</span><span class="badge">${esc(groupMap()[record.group] || '其他')}</span><span class="badge">${esc(periodLabel(record.period))}</span></div><h2>${esc(record.title)}</h2></div>${record.kind === 'bug' ? `<button type="button" data-edit-bug>编辑${entryLabel}</button>` : ''}</div>
+        <div class="detail-grid"><div class="section"><h3>原始反馈</h3><p>${esc(sourceText)}</p></div><div class="section"><h3>前置条件</h3><p>${esc(precondition)}</p></div></div>
+        <div class="section"><h3>对应原始截图</h3>${traceabilityWarnings.length ? `<div class="analysis-note">${traceabilityWarnings.map(warning => `⚠ ${esc(warning)}`).join('<br>')}</div>` : ''}<div class="image-grid">${imageCards(sourceImages, `${record.id} 原始截图`, record.kind === 'bug', sourceOriginalPaths)}</div></div>
+        ${evidenceImages.length ? `<div class="section"><h3>当前修复证据</h3><div class="image-grid">${imageCards(evidenceImages, `${record.id} 修复证据`)}</div></div>` : ''}
+        <div class="detail-grid"><div class="section"><h3>验收操作</h3><ol>${steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol></div><div class="section"><h3>唯一通过标准</h3><p>${esc(expected)}</p></div></div>
+        <div class="section"><h3>处理选项</h3><div class="decision-grid">${Object.entries(decisionLabels).map(([value,label]) => `<button type="button" class="${value} ${decision === value ? 'active' : ''}" data-decision="${value}" aria-pressed="${decision === value}">${esc(label)}</button>`).join('')}</div></div>
+        <div class="section"><h3>是否结束</h3><div class="completion-row"><button type="button" class="${completion === 'open' ? 'active' : ''}" data-completion="open">未结束</button><button type="button" class="${completion === 'closed' ? 'active' : ''}" data-completion="closed" ${decision === 'pass' && hasFeedback(data) ? 'disabled' : ''}>已结束</button><span class="muted">${decision === 'pass' && hasFeedback(data) ? '已通过但仍有建议或疑问，保持未结束。' : '通过且无建议时自动结束；其他情况可手动调整。'}</span></div></div>
+        <div class="section"><h3>优先级（默认 3 星）</h3><div class="stars">${starsMarkup(priority)}<button type="button" class="ghost" data-priority-reset>恢复 3 星</button></div></div>
+        <div class="section field-stack"><div class="analysis-note">请结合原始反馈、对应截图和最新建议完整理解；如描述有冲突，以最新内容为准。有疑问时先写入“疑问区”，不要凭空修改需求。</div>
+          <label>${record.kind === 'item' ? '最新描述 / 手动建议' : `${entryLabel}描述`}<textarea id="note" placeholder="输入建议，或直接粘贴剪贴板截图">${esc(latestText)}</textarea></label>
+          <label>疑问区<textarea id="questions" placeholder="记录需要向用户确认的点">${esc(data.questions || '')}</textarea></label>
+          <div class="detail-grid"><label>修复状态<select id="repair-status">${Object.entries(repairLabels).map(([value,label]) => `<option value="${value}" ${data.repair_status === value ? 'selected' : ''}>${esc(label)}</option>`).join('')}</select></label><label>修复摘要<textarea id="fix-summary" placeholder="完成后记录实际改动">${esc(data.fix_summary || '')}</textarea></label></div>
+          <label>修复方案<textarea id="repair-plan" placeholder="根因、修复步骤和验证方式">${esc(listText(data.repair_plan))}</textarea></label>
+          <label>相似问题风险<textarea id="similar-risks" placeholder="同组件、同链路可能存在的类似问题">${esc(listText(data.similar_risks))}</textarea></label>
+          <label>验证证据<textarea id="verification-evidence" placeholder="自动化、视觉证据、版本或提交">${esc(data.verification_evidence || '')}</textarea></label>
+        </div>
+        <div class="section"><h3>本轮粘贴图片</h3><div class="image-grid">${imageCards(attachments, `${record.id} 粘贴`, true)}</div></div>
+        <div class="section actions"><button type="button" class="primary" data-next-open>保存并切换到下一个未结束</button></div>`;
+    }
+
+    function render() { renderProgress(); renderList(); renderDetail(); }
+
+    function syncCompletionUi() {
+      const record = currentRecord();
+      if (!record) return;
+      const completion = completionFor(record.data);
+      const hasOpenFeedback = validDecision(record.data?.status) === 'pass' && hasFeedback(record.data);
+      const badge = els.detail.querySelector('[data-current-completion-badge]');
+      if (badge) badge.textContent = completion === 'closed' ? '已结束' : '未结束';
+      for (const button of els.detail.querySelectorAll('[data-completion]')) {
+        button.classList.toggle('active', button.dataset.completion === completion);
+        if (button.dataset.completion === 'closed') button.disabled = hasOpenFeedback;
+      }
+      const help = els.detail.querySelector('.completion-row .muted');
+      if (help) help.textContent = hasOpenFeedback ? '已通过但仍有建议或疑问，保持未结束。' : '通过且无建议时自动结束；其他情况可手动调整。';
+      renderProgress();
+    }
+
+    function updateSelected(mutator, message, {renderNow = true} = {}) {
+      const record = currentRecord();
+      if (!record) return;
+      mutator(record.data);
+      record.data.updated_at = nowIso();
+      if (record.kind === 'item') state.items[record.id] = record.data;
+      if (renderNow) render();
+      markDirty(message);
+    }
+
+    function selectRelative(offset) {
+      const records = filteredRecords();
+      if (!records.length) return;
+      const index = Math.max(0, records.findIndex(record => record.id === selectedId));
+      selectedId = records[(index + offset + records.length) % records.length].id;
+      render();
+      markDirty('位置已保存');
+    }
+
+    function selectNextOpen() {
+      const records = allRecords();
+      if (!records.length) return;
+      const start = Math.max(-1, records.findIndex(record => record.id === selectedId));
+      const next = [...records.slice(start + 1), ...records.slice(0, start + 1)].find(record => completionFor(record.data) === 'open');
+      if (!next) { els.save.className = 'save-state saved'; els.save.textContent = '所有验收bug都已结束'; return; }
+      selectedId = next.id;
+      render();
+      markDirty('位置已保存');
+    }
+
+    async function fileToAttachment(file) {
+      const dataUrl = await new Promise((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(reader.error); reader.readAsDataURL(file); });
+      const image = await new Promise((resolve,reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = dataUrl; });
+      const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale)); canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+      return {id:`img-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,name:file.name || `clipboard-${Date.now()}.webp`,type:'image/webp',data_url:canvas.toDataURL('image/webp',.82),created_at:nowIso()};
+    }
+
+    async function handlePaste(event, target) {
+      const files = [...(event.clipboardData?.items || [])].filter(item => item.type.startsWith('image/')).map(item => item.getAsFile()).filter(Boolean);
+      if (!files.length) return;
+      event.preventDefault();
+      const attachments = await Promise.all(files.map(fileToAttachment));
+      if (target === 'bug-dialog') {
+        bugDraft.images.push(...attachments); syncBugDraft('新增验收bug草稿图片已保存'); renderBugDialog();
+      } else {
+        const record = currentRecord();
+        updateSelected(data => { const field = record?.kind === 'bug' ? 'images' : 'attachments'; if (!Array.isArray(data[field])) data[field] = []; data[field].push(...attachments); }, '粘贴图片已保存');
+      }
+    }
+
+    function blankBug(entryType = 'bug') { return {entry_type:entryType,module:'other',submodule:'',text:'',questions:'',status:'untested',completion_status:'open',repair_status:'untriaged',priority:3,default_priority:3,manual_priority:0,priority_source:'ai_default',images:[],conversation_period:'2026-07-18-review'}; }
+    function hasBugContent(bug) { return Boolean(String(bug?.submodule || bug?.text || bug?.questions || '').trim() || (bug?.images || []).length); }
+    function syncBugDraft(message = '新增验收bug草稿已自动保存') { state.bug_draft = clone(bugDraft || blankBug()); state.editing_bug_id = editingBugId || ''; markDirty(message); }
+    function openBugDialog(id = '', requestedType = 'bug') {
+      editingBugId = id;
+      const savedDraft = state.bug_draft && typeof state.bug_draft === 'object' ? state.bug_draft : {};
+      if (id) bugDraft = state.editing_bug_id === id && savedDraft.id === id ? clone(savedDraft) : clone(state.bugs.find(bug => bug.id === id));
+      else bugDraft = !savedDraft.id && !state.editing_bug_id && hasBugContent(savedDraft) ? clone(savedDraft) : blankBug(requestedType);
+      renderBugDialog(); els.bugDialog.showModal(); if (!id) syncBugDraft();
+    }
+    function renderBugDialog() {
+      const isRequirement = (bugDraft.entry_type || 'bug') === 'requirement'; const label = isRequirement ? '新需求' : 'Bug';
+      els.bugDialogTitle.textContent = editingBugId ? `编辑 ${editingBugId} · ${label}` : `新增 ${label}`;
+      $('#bug-text-label').firstChild.textContent = `${label}描述`;
+      els.bugText.placeholder = isRequirement ? '写下需求目标、使用场景和验收标准；可粘贴截图' : '写下实际现象、复现方式和期望；可粘贴截图';
+      $('#save-bug').textContent = `保存 ${label}`;
+      els.bugModule.value = bugDraft.module || 'other'; els.bugSubmodule.value = bugDraft.submodule || ''; els.bugText.value = bugDraft.text || ''; els.bugQuestions.value = bugDraft.questions || '';
+      els.bugStars.innerHTML = starsMarkup(recordPriority(bugDraft),'bug-priority');
+      els.bugImages.innerHTML = imageCards(bugDraft.images || [], `新增${label}`, true);
+      els.deleteBug.hidden = !editingBugId;
+    }
+    function nextBugId() {
+      const used = new Set([...orderedCatalogIds(), ...state.bugs.map(bug => String(bug.id || ''))]);
+      let value = Math.max(0,...state.bugs.map(bug => Number(String(bug.id).match(/BUG-(\d+)/)?.[1] || 0))) + 1;
+      while (used.has(`BUG-${String(value).padStart(3,'0')}`)) value += 1;
+      return `BUG-${String(value).padStart(3,'0')}`;
+    }
+    function nextRequirementId() {
+      const used = new Set([...orderedCatalogIds(), ...state.bugs.map(bug => String(bug.id || ''))]);
+      let value = Math.max(0,...state.bugs.map(bug => Number(String(bug.id).match(/REQ-(\d+)/)?.[1] || 0))) + 1;
+      while (used.has(`REQ-${String(value).padStart(3,'0')}`)) value += 1;
+      return `REQ-${String(value).padStart(3,'0')}`;
+    }
+    function saveBug() {
+      const previousBug = editingBugId ? state.bugs.find(bug => bug.id === editingBugId) : null;
+      const previousText = String(previousBug?.text || '');
+      Object.assign(bugDraft,{module:els.bugModule.value || 'other',submodule:els.bugSubmodule.value.trim(),text:els.bugText.value.trim(),questions:els.bugQuestions.value.trim(),updated_at:nowIso()});
+      if (!bugDraft.text && !bugDraft.submodule && !(bugDraft.images || []).length) { els.save.className = 'save-state error'; els.save.textContent = `请填写${bugDraft.entry_type === 'requirement' ? '需求' : 'Bug'}描述或粘贴截图`; return; }
+      if (previousText.trim() && previousText !== bugDraft.text) {
+        if (!Array.isArray(bugDraft.description_history)) bugDraft.description_history = [];
+        bugDraft.description_history.push({text:previousText,replaced_at:nowIso()});
+      }
+      if (editingBugId) state.bugs = state.bugs.map(bug => bug.id === editingBugId ? {...bugDraft,id:editingBugId} : bug);
+      else { bugDraft.id = bugDraft.entry_type === 'requirement' ? nextRequirementId() : nextBugId(); bugDraft.created_at = nowIso(); state.bugs.push(clone(bugDraft)); editingBugId = bugDraft.id; }
+      selectedId = editingBugId; state.bug_draft = blankBug(); state.editing_bug_id = ''; els.bugDialog.close(); render(); markDirty('验收bug已保存');
+    }
+
+    async function loadJson(url) {
+      const controller = typeof AbortController === 'function' ? new AbortController() : null;
+      try {
+        return await withTimeout((async () => {
+          const response = await fetch(url,{cache:'no-store',...(controller ? {signal:controller.signal} : {})});
+          const body = await response.json();
+          if (!response.ok) throw new Error(body?.error || `HTTP ${response.status}`);
+          return body;
+        })(), `读取 ${url} 超时`);
+      } catch (error) {
+        controller?.abort?.();
+        throw error;
+      }
+    }
+    async function completeReview() {
+      const button = $('#complete-review');
+      button.disabled = true;
+      const startedAt = Date.now();
+      const progressTimer = setInterval(() => {
+        const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+        els.save.textContent = `正在归档全部验收项与图片… ${seconds}s / 预计 30s 内，最多 45s`;
+      }, 1000);
+      try {
+        const operationId = String(
+          localStorage.getItem(COMPLETE_OPERATION_KEY)
+          || crypto.randomUUID?.()
+          || `review-${Date.now()}-${Math.random().toString(36).slice(2)}`
+        );
+        localStorage.setItem(COMPLETE_OPERATION_KEY, operationId);
+        delete state.complete_operation_id;
+        const payload = snapshot();
+        delete payload.complete_operation_id;
+        saveLocal(payload);
+        await Promise.allSettled([writeIndexedSnapshot(payload), writeHostSnapshot(payload)]);
+        els.save.className = 'save-state saving';
+        els.save.textContent = '正在归档全部验收项与图片…';
+        let result;
+        try {
+          result = await postSnapshot(
+            COMPLETE_API,
+            payload,
+            '生成验收文档',
+            COMPLETE_TIMEOUT_MS,
+            {'X-Review-Operation-Id':operationId}
+          );
+        } catch (error) {
+          if (!/超时|fetch|network|abort/i.test(String(error?.message || error))) throw error;
+          els.save.textContent = '提交响应超时，服务器事务仍在恢复；正在查询 operation 状态…';
+          result = {status:'running'};
+        }
+        if (result.status === 'running') {
+          const pollStarted = Date.now();
+          while (Date.now() - pollStarted < 135000) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+            els.save.textContent = `服务器仍在处理验收bug归档… ${seconds}s`;
+            try {
+              const operation = await loadJson(`${API_PREFIX}/operations/${encodeURIComponent(operationId)}`);
+              if (['committed','committed-with-cleanup-pending'].includes(operation.status)) { result = {...(operation.result || {}),status:operation.status}; break; }
+              if (operation.status === 'rolled-back' || operation.status === 'failed') {
+                localStorage.removeItem(COMPLETE_OPERATION_KEY);
+                throw new Error(operation.error || '服务器已回滚本次归档');
+              }
+            } catch (pollError) {
+              if (/回滚|failed/i.test(String(pollError?.message || pollError))) throw pollError;
+            }
+          }
+          if (result.status === 'running') throw new Error('operation 状态查询超时；可使用同一 operation id 重试');
+        }
+        localStorage.removeItem(COMPLETE_OPERATION_KEY);
+        saveLocal(snapshot());
+        els.save.className = 'save-state saved';
+        els.save.textContent = `验收文档已生成：${result.record || ''}`;
+      } catch (error) {
+        if (/新的 operation id|已终止|回滚/i.test(String(error?.message || error))) {
+          localStorage.removeItem(COMPLETE_OPERATION_KEY);
+        }
+        els.save.className = 'save-state error';
+        els.save.textContent = `生成验收文档失败：${error.message || error}`;
+      } finally {
+        clearInterval(progressTimer);
+        button.disabled = false;
+      }
+    }
+    async function initialize() {
+      try { catalog = await loadJson(CATALOG); } catch (error) { throw new Error('验收bug目录加载失败：为避免隐藏验收记录，工作台已停止加载，请稍后刷新。'); }
+      if (!Array.isArray(catalog.items) || catalog.items.length < 1) throw new Error('验收bug目录为空或格式错误。');
+      if (Number(catalog.schema_version || 0) < 1 || !catalog.catalog_id || !catalog.project) throw new Error('验收bug目录缺少 schema/project/catalog_id，已停止加载。');
+      await validateCatalogIdentity();
+      const groups = catalog.groups?.length ? catalog.groups : groupsFallback;
+      els.module.innerHTML = '<option value="all">全部模块</option>' + groups.map(([value,label]) => `<option value="${esc(value)}">${esc(label)}</option>`).join('');
+      els.bugModule.innerHTML = groups.map(([value,label]) => `<option value="${esc(value)}">${esc(label)}</option>`).join('');
+      els.repair.innerHTML = '<option value="all">全部修复状态</option>' + Object.entries(repairLabels).map(([value,label]) => `<option value="${value}">${esc(label)}</option>`).join('');
+      let server = null; try { server = await loadJson(API); } catch (error) { try { server = await loadJson(STATIC_STATE); } catch (ignored) {} }
+      let local = null; try { local = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null'); } catch (ignored) {}
+      const [indexedResult, hostResult] = await Promise.allSettled([readIndexedSnapshot(), readHostSnapshot()]);
+      const indexed = indexedResult.status === 'fulfilled' ? indexedResult.value : null;
+      const host = hostResult.status === 'fulfilled' ? hostResult.value : null;
+      const candidates = [
+        {value:server, rank:4},
+        {value:local, rank:3},
+        {value:indexed, rank:2},
+        {value:host, rank:1}
+      ].filter(candidate => validStateIdentity(candidate.value));
+      candidates.sort((left,right) => Number(right.value.updated_at_ms || 0) - Number(left.value.updated_at_ms || 0) || right.rank - left.rank);
+      const candidate = candidates[0]?.value || null;
+      state = normalizeState(redactSecrets(candidate || {items:{},bugs:[]}));
+      const periods = [...(catalog.periods || [])];
+      for (const bug of state.bugs) { const period = normalizePeriod(bug.conversation_period,bug.created_at); if (period && !periods.some(([value]) => value === period)) periods.push([period,`${period} · 新增反馈`]); }
+      els.period.innerHTML = '<option value="all">全部时间段</option>' + periods.map(([value,label]) => `<option value="${esc(value)}">${esc(label)}</option>`).join('');
+      const filters = state.filters?.workbench || {};
+      els.search.value = filters.search || ''; els.module.value = filters.module || 'all'; els.type.value = filters.type || 'all'; els.period.value = filters.period || 'all'; els.decision.value = filters.decision || 'all'; els.completion.value = filters.completion || 'all'; els.repair.value = filters.repair || 'all';
+      selectedId = allRecords().some(record => record.id === state.selected_id) ? state.selected_id : allRecords()[0]?.id || '';
+      render();
+      editRevision = 1; diskRevision = candidate && candidate !== server ? 0 : 1;
+      if (!diskRevision) { els.save.className = 'save-state saving'; els.save.textContent = '发现较新的本机副本，正在写回磁盘…'; markDirty('恢复记录'); }
+      else { els.save.className = 'save-state saved'; els.save.textContent = `磁盘记录已读取 ${formatTime(state.updated_at_ms || Date.now())}`; }
+    }
+
+    els.list.addEventListener('click', event => { const button = event.target.closest('[data-select]'); if (!button) return; selectedId = button.dataset.select; render(); markDirty('位置已保存'); });
+    for (const control of [els.search,els.module,els.type,els.period,els.decision,els.completion,els.repair]) control.addEventListener(control === els.search ? 'input' : 'change', () => { render(); markDirty('筛选已保存'); });
+    $('#prev').addEventListener('click', () => selectRelative(-1)); $('#next').addEventListener('click', () => selectRelative(1)); $('#next-open').addEventListener('click', selectNextOpen); $('#new-bug').addEventListener('click', () => openBugDialog('', 'bug')); $('#new-requirement').addEventListener('click', () => openBugDialog('', 'requirement'));
+    els.detail.addEventListener('click', event => {
+      const image = event.target.closest('[data-image]'); if (image) { els.imageTitle.textContent = image.dataset.imageLabel || '图片'; els.imageFull.src = image.dataset.image; els.imageFull.alt = image.dataset.imageLabel || '图片'; els.imageOpen.href = image.dataset.originalPath ? fileUrl(image.dataset.originalPath) : image.dataset.image; els.imageOpen.textContent = image.dataset.originalPath ? '打开原始文件' : '打开嵌入图片'; els.imageDialog.showModal(); return; }
+      const decision = event.target.closest('[data-decision]'); if (decision) { updateSelected(data => { data.status = decision.dataset.decision; data.completion_status = completionFor(data); }, '处理状态已保存'); return; }
+      const completion = event.target.closest('[data-completion]'); if (completion) { updateSelected(data => { data.completion_status = completion.dataset.completion; data.completion_source = 'manual'; }, '结束状态已保存'); return; }
+      const priority = event.target.closest('[data-priority]'); if (priority) { updateSelected(data => { data.priority = Number(priority.dataset.priority); data.manual_priority = Number(priority.dataset.priority); data.priority_source = 'manual'; }, '优先级已保存'); return; }
+      if (event.target.closest('[data-priority-reset]')) { updateSelected(data => { data.priority = 3; data.default_priority = 3; data.manual_priority = 0; data.priority_source = 'ai_default'; }, '优先级已恢复'); return; }
+      if (event.target.closest('[data-next-open]')) { selectNextOpen(); return; }
+      if (event.target.closest('[data-edit-bug]')) { openBugDialog(selectedId); return; }
+      const deleteImage = event.target.closest('[data-delete-image]'); if (deleteImage) { const record = currentRecord(); updateSelected(data => { const field = record?.kind === 'bug' ? 'images' : 'attachments'; data[field] = (data[field] || []).filter(image => String(image.id) !== String(deleteImage.dataset.deleteImage)); }, '图片已删除'); }
+    });
+    els.detail.addEventListener('input', event => {
+      const fieldMap = {note:'note',questions:'questions','fix-summary':'fix_summary','repair-plan':'repair_plan','similar-risks':'similar_risks','verification-evidence':'verification_evidence'};
+      const field = fieldMap[event.target.id]; if (!field) return;
+      const record = currentRecord();
+      const targetField = field === 'note' && record?.kind === 'bug' ? 'text' : field;
+      updateSelected(data => { data[targetField] = event.target.value; data.completion_status = completionFor(data); }, '输入已自动保存', {renderNow:false});
+    });
+    els.detail.addEventListener('focusin', event => {
+      if (event.target.id === 'note') event.target.dataset.initialValue = event.target.value;
+    });
+    els.detail.addEventListener('change', event => {
+      if (event.target.id === 'repair-status') updateSelected(data => { data.repair_status = event.target.value; }, '修复状态已保存');
+      else if (['note','questions','fix-summary','repair-plan','similar-risks','verification-evidence'].includes(event.target.id)) syncCompletionUi();
+    });
+    els.detail.addEventListener('focusout', event => {
+      if (event.target.id === 'note') {
+        const record = currentRecord();
+        const previous = String(event.target.dataset.initialValue || '');
+        const current = String(event.target.value || '');
+        if (record && previous.trim() && previous !== current) updateSelected(data => {
+          if (!Array.isArray(data.description_history)) data.description_history = [];
+          data.description_history.push({text:previous, replaced_at:nowIso()});
+        }, '历史描述已记录', {renderNow:false});
+      }
+      if (['note','questions','fix-summary','repair-plan','similar-risks','verification-evidence'].includes(event.target.id)) syncCompletionUi();
+    });
+    els.detail.addEventListener('paste', event => { if (event.target.id === 'note') handlePaste(event,'detail'); });
+    els.bugDialog.addEventListener('input', event => { if (!bugDraft || !['bug-module','bug-submodule','bug-text','bug-questions'].includes(event.target.id)) return; Object.assign(bugDraft,{module:els.bugModule.value,submodule:els.bugSubmodule.value,text:els.bugText.value,questions:els.bugQuestions.value}); syncBugDraft(); });
+    els.bugDialog.addEventListener('change', event => { if (event.target.id === 'bug-module') { bugDraft.module = els.bugModule.value || 'other'; syncBugDraft(); } });
+    els.bugDialog.addEventListener('click', event => { const star = event.target.closest('[data-bug-priority]'); if (star) { bugDraft.priority = Number(star.dataset.bugPriority); bugDraft.manual_priority = bugDraft.priority; bugDraft.priority_source = 'manual'; syncBugDraft(); renderBugDialog(); return; } const image = event.target.closest('[data-image]'); if (image) { els.imageTitle.textContent = image.dataset.imageLabel || '图片'; els.imageFull.src = image.dataset.image; els.imageOpen.href = image.dataset.originalPath ? fileUrl(image.dataset.originalPath) : image.dataset.image; els.imageOpen.textContent = image.dataset.originalPath ? '打开原始文件' : '打开嵌入图片'; els.imageDialog.showModal(); return; } const remove = event.target.closest('[data-delete-image]'); if (remove) { bugDraft.images = (bugDraft.images || []).filter(image => String(image.id) !== String(remove.dataset.deleteImage)); syncBugDraft('新增验收bug草稿图片已删除'); renderBugDialog(); } });
+    els.bugText.addEventListener('paste', event => handlePaste(event,'bug-dialog'));
+    $('#save-bug').addEventListener('click', saveBug);
+    els.deleteBug.addEventListener('click', () => { if (!editingBugId || !confirm(`删除 ${editingBugId}？`)) return; state.bugs = state.bugs.filter(bug => bug.id !== editingBugId); selectedId = allRecords()[0]?.id || ''; editingBugId = ''; els.bugDialog.close(); render(); markDirty('验收bug已删除'); });
+    document.addEventListener('click', event => { const close = event.target.closest('[data-close]'); if (close) document.getElementById(close.dataset.close)?.close(); });
+    $('#theme').addEventListener('click', () => { const next = document.documentElement.style.colorScheme === 'dark' ? 'light' : 'dark'; document.documentElement.style.colorScheme = next; });
+    $('#export-state').addEventListener('click', async () => {
+      try { await exportBackup(); }
+      catch (error) { els.save.className = 'save-state error'; els.save.textContent = `导出失败：${error.message || error}`; }
+    });
+    $('#complete-review').addEventListener('click', completeReview);
+    $('#import-state').addEventListener('click', () => $('#import-file').click());
+    $('#import-file').addEventListener('change', async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try { await importBackup(file); } catch (error) { els.save.className = 'save-state error'; els.save.textContent = `导入失败：${error.message || error}`; }
+      event.target.value = '';
+    });
+    els.retrySave.addEventListener('click', () => { retryAttempt = 0; els.retrySave.hidden = true; saveChain = saveChain.then(flushSave); });
+    document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') { event.preventDefault(); selectNextOpen(); } });
+    window.addEventListener('pagehide', () => { if (editRevision > diskRevision) { const snap = snapshot(); saveLocal(snap); fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(snap),keepalive:true}).catch(() => {}); } });
+    initialize().catch(error => { els.save.className = 'save-state error'; els.save.textContent = `加载失败：${error.message || error}`; });
+  })();
+  </script>
+</body>
+</html>
