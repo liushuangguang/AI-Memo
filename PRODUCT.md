@@ -13,6 +13,7 @@
 | :--- | :--- | :--- |
 | **UX 作品集与设计母稿** | [Goodnotes岗位_AI备忘录产品UX作品集文字稿_2026-09-16.md](file:///c:/Users/Administrator/Documents/ChatGPT/AI备忘录/交付/Goodnotes岗位_AI备忘录产品UX作品集文字稿_2026-09-16.md) | **产品核心定位与叙事权威**：问题定义、用户状态、从随手记录到智能助理的机制推演、人机控制权与反思。 |
 | **高保真界面与原则规范** | [AI备忘录-V3-Pencil-完整设计任务说明.md](file:///c:/Users/Administrator/Documents/ChatGPT/AI备忘录/交付/AI备忘录-V3-Pencil-完整设计任务说明.md) | **界面与交互规范权威**：顶层信息架构（“现在”与“记录”）、六大核心页面清单、十二条刚性产品原则。 |
+| **核心材料、PPT与相关站点** | [docs/materials/LINKS_AND_REFERENCES.md](file:///c:/Users/Administrator/Documents/ChatGPT/AI备忘录/docs/materials/LINKS_AND_REFERENCES.md) | **原始输入材料与多媒体权威**：BP商业计划书、探索PPT全量切图与原件、手绘脑图、风格参考与外部站点链接。 |
 | **工程实现与修复对照** | [AI备忘录-v0.1.5-build7-逐视频修复对照.md](file:///c:/Users/Administrator/Documents/ChatGPT/AI备忘录/交付/AI备忘录-v0.1.5-build7-逐视频修复对照.md) | **工程交付与行为基线权威**：真机实现、功能补齐、视频排障与异常行为判定。 |
 | **作品集总控与事实边界** | [简历/PRODUCT.md](file:///C:/Users/Administrator/Documents/ChatGPT/简历/PRODUCT.md) | **事实与证据边界权威**：严谨区分“已实现”、“探索中”与“未来设想”，杜绝虚构数据。 |
 
